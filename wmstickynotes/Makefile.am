@@ -11,4 +11,5 @@ bin_PROGRAMS = wmstickynotes
 wmstickynotes_SOURCES = wmstickynotes.c wmstickynotes.h wmstickynotes.xpm delete_button.xpm resize_button.xpm
 
 wmstickynotes_LDADD = @GTK_LIBS@
+wmstickynotes_LDFLAGS = -lX11
 EXTRA_DIST = THANKS

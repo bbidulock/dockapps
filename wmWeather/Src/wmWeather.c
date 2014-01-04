@@ -247,6 +247,9 @@ FILE		*fp;
 
 
 
+    (void) CurrentJD;
+    (void) s;
+    (void) n;
 
 
 	  

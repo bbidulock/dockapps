@@ -17,7 +17,8 @@
 
 .PHONY: all install clean realclean
 
-prefix ?= /usr/local
+PREFIX  = /usr
+DESTDIR =
 
 CC = gcc
 CFLAGS = -Wall -W -pedantic
@@ -47,10 +48,8 @@ wmfu: $(OBJECTS)
 	$(LD) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 install: all
-	install -D wmfu ${prefix}/bin/wmfu
-	install -D --mode=644 wmfu.1 ${prefix}/man/man1/wmfu.1
-	install -d ${prefix}/share/doc/wmfu
-	install --mode=644 README COPYING ${prefix}/share/doc/wmfu
+	install -Dm755 wmfu $(DESTDIR)$(PREFIX)/bin/wmfu
+	install -Dm644 wmfu.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmfu.1
 
 clean:
 	-$(RM) $(OBJECTS)

@@ -1,7 +1,8 @@
 CC     = gcc
 CFLAGS = -O2 -Wall
 INCDIR = -I/usr/X11R6/include/X11 -I/usr/X11R6/include
-DESTDIR= /usr/X11R6
+DESTDIR= 
+PREFIX = /usr
 LIBDIR = -L/usr/X11R6/lib
 # for linux
 LIBS   = -lXpm -lX11 -lXext
@@ -28,7 +29,7 @@ clean:
 	rm -f wmWeather
 
 install:: wmWeather
-	install -c -s -m 0755 wmWeather $(DESTDIR)/bin
-	install -c    -m 0755 GrabWeather $(DESTDIR)/bin
-	install -c    -m 0644 wmWeather.1 $(DESTDIR)/man/man1 
+	install -Dm755 wmWeather $(DESTDIR)$(PREFIX)/bin/wmWeather
+	install -Dm755 GrabWeather $(DESTDIR)$(PREFIX)/bin/GrabWeather
+	install -Dm644 wmWeather.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmWeather.1
 

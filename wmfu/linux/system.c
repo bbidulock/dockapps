@@ -26,6 +26,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#define __user
 #include <wireless.h>
 
 #include "../list.h"

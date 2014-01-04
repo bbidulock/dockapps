@@ -5,6 +5,8 @@ OBJS =	wmtime.o \
 		../wmgeneral/misc.o \
 		../wmgeneral/list.o
 XPMS = wmtime-master.xpm wmtime-mask.xbm
+PREFIX = /usr
+DESTDIR = 
 
 CC = gcc
 CFLAGS += -O2
@@ -15,11 +17,12 @@ CFLAGS += -O2
 wmtime: $(OBJS) $(XPMS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o wmtime $(OBJS) $(LIBDIR) $(LIBS)
 
+install: wmtime
+	install -Dm755 wmtime $(DESTDIR)$(PREFIX)/bin/wmtime
+	install -Dm644 wmtime.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmtime.1
+
 clean::
 	for i in $(OBJS) ; do \
 		rm $$i; \
 	done
 	rm wmtime
-
-install:: wmtime
-	install -m 755 wmtime $(DESTDIR)/usr/bin

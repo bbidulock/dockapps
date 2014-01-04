@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(wmweather+.c)
+AC_INIT(wmweather+.c, 2.12)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(wmweather+, 2.12)
+AM_INIT_AUTOMAKE([1.14])
 
 # We need GNU sources for certain features
 AH_VERBATIM([_GNU_SOURCE],

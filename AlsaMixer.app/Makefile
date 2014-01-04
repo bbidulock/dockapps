@@ -3,7 +3,7 @@
 #
 
 DESTDIR =
-GNUSTEP_BINDIR = /usr/local/GNUstep/Apps/AlsaMixer.app
+GNUSTEP_BINDIR = /usr/bin
 X11_BINDIR = /usr/X11R6/bin
 
 CXX=c++

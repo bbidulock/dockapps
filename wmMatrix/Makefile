@@ -1,7 +1,8 @@
 CC     = gcc
 CFLAGS = -O2 -Wall 
 INCDIR = 
-DESTDIR= /usr
+DESTDIR=
+PREFIX = /usr
 LIBDIR = 
 LIBS   = -lXpm -lX11 -lXext
 
@@ -24,5 +25,5 @@ clean:
 	rm -f wmMatrix
 
 install:	wmMatrix
-	install -m 0755 wmMatrix $(DESTDIR)/bin
-	install -m 0644 wmMatrix.1 $(DESTDIR)/share/man/man1
+	install -Dm755 wmMatrix $(DESTDIR)$(PREFIX)/bin/wmMatrix
+	install -Dm644 wmMatrix.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmMatrix.1

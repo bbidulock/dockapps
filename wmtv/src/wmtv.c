@@ -33,7 +33,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <linux/videodev.h>
+#include <linux/videodev2.h>
 #include <linux/soundcard.h>
 
 #include <X11/Xlib.h>

@@ -23,3 +23,10 @@ clean::
 		rm -f $$i;\
 	done
 	rm -f wmmon
+
+PREFIX = /usr
+DESTDIR =
+
+install:
+	install -Dm755 wmmon $(DESTDIR)$(PREFIX)/bin/wmmon
+	install -Dm644 wmmon.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmmon.1

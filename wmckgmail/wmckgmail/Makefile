@@ -5,6 +5,7 @@
 LIBDIR = -L/usr/X11R6/lib
 LIBS   = -lXpm -lXext -lX11 -lm
 FLAGS = -O2
+PREFIX = /usr/local
 OBJS =	wmckgmail.o \
 		../wmgeneral/wmgeneral.o \
 		../wmgeneral/misc.o \
@@ -27,9 +28,5 @@ clean::
 	rm -f *~
 
 install:: wmckgmail
-	@echo "Installing wmckgmail binary in /usr/local/bin/wmckgmail"
-	@cp wmckgmail /usr/local/bin
-
-install-man::
-	@echo "Installing wmckgmail man page in /usr/local/man/man1/wmckgmail.1";
-	@cp wmckgmail.1 /usr/local/man/man1
+	install -Dm755 wmckgmail $(DESTDIR)$(PREFIX)/bin/wmckgmail
+	install -Dm644 wmckgmail.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmckgmail.1

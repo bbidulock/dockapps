@@ -4,6 +4,8 @@ OBJS =	wmkeys.o \
 		wmgeneral/wmgeneral.o \
 		wmgeneral/misc.o \
 		wmgeneral/list.o
+DESTDIR =
+PREFIX = /usr
 
 .c.o:
 	cc -c -O2 -Wall $< -o $*.o
@@ -16,3 +18,6 @@ clean::
 		rm $$i; \
 	done
 	rm wmkeys
+
+install:
+	install -Dm755 wmkeys $(DESTDIR)$(PREFIX)/bin/wmkeys

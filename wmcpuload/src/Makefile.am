@@ -6,7 +6,8 @@ wmcpuload_SOURCES = \
 	main.c \
 	backlight_on.xpm \
 	backlight_off.xpm \
-	parts.xpm
+	parts.xpm \
+	../libdockapp/dockapp.c
 
 EXTRA_wmcpuload_SOURCES = \
 	cpu_linux.c \
@@ -17,16 +18,13 @@ EXTRA_wmcpuload_SOURCES = \
 	cpu_solaris.c \
 	cpu_cygwin.c
 
-wmcpuload_DEPENDENCIES = ../libdockapp/dockapp.o
-
-INCLUDES = \
+AM_CPPFLAGS = \
 	@HEADER_SEARCH_PATH@ \
 	@XCFLAGS@
 
-CFLAGS = @DFLAGS@ @CFLAGS@ -I../libdockapp/
+wmcpuload_CFLAGS = -I../libdockapp/
 
 wmcpuload_LDADD = \
-	dockapp.o \
 	@LIBRARY_SEARCH_PATH@ \
 	@XLIBS@ \
 	@XLFLAGS@

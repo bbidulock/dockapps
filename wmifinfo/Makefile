@@ -10,6 +10,8 @@ ENABLE_NWN_SUPPORT=n
 
 NAME=wmifinfo
 VERSION=0.06
+DESTDIR=
+PREFIX=/usr
 
 CC = gcc
 LD = gcc
@@ -37,7 +39,7 @@ clean:
 	rm -f *.o $(BIN) core
 
 install:
-	cp $(BIN) $(BINDIR)
+	install -Dm755 $(BIN) $(DESTDIR)$(PREFIX)/bin/$(BIN)
 
 dist:	clean
 	cd .. && tar -zcvf dist/wmifinfo-$(VERSION).tgz wmifinfo-$(VERSION)/

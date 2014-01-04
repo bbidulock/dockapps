@@ -1,7 +1,7 @@
 CC     = gcc
 CFLAGS = -O2 -Wall
 INCDIR = -I/usr/X11R6/include/X11 -I/usr/X11R6/include
-DESTDIR= /usr/X11R6
+DESTDIR= 
 LIBDIR = -L/usr/X11R6/lib
 
 # for Linux
@@ -31,6 +31,6 @@ clean:
 	rm -f wmCalClock
 
 install:: wmCalClock
-	install -c -s -m 0755 wmCalClock $(DESTDIR)/bin
-	install -c -m 0644 wmCalClock.1 $(DESTDIR)/man/man1 
+	install -Dm0755 wmCalClock $(DESTDIR)/usr/bin/wmCalClock
+	install -Dm0644 wmCalClock.1 $(DESTDIR)/usr/share/man/man1/wmCalClock.1
 

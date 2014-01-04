@@ -24,24 +24,5 @@ clean::
 	rm -f *~
 
 install:: wmitime
-	cp -f wmitime /usr/local/bin/
-	chmod 755 /usr/local/bin/wmitime
-	chown root:root /usr/local/bin/wmitime
-#	cp wminetrc $(HOME)/.wminetrc
-#	chmod 600 $(HOME)/.wminetrc
-#	cp wminetrc /etc/wminetrc
-#	chmod 644 /etc/wminetrc
-	@echo "wmitime Installation finished..."
-
-
-
-
-
-
-
-
-
-
-
-
+	install -Dm755 wmitime $(DESTDIR)$(PREFIX)/bin/wmitime
 

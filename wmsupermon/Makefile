@@ -3,6 +3,8 @@ LIBS   = -lXpm -lXext -lX11 -lm
 OBJS =  wmsupermon.o dockapp.o stat_dev.o panes.o expr.o
 FLAGS= -O2 -Wall
 #FLAGS= -g -Wall -O0
+DESTDIR =
+PREFIX = /usr
 
 all: wmsupermon
 
@@ -11,6 +13,10 @@ wmsupermon: $(OBJS)
 
 clean:
 	$(RM) *.o wmsupermon core* *.core expr.c tags
+
+install:
+	install -Dm755 wmsupermon $(DESTDIR)$(PREFIX)/bin/wmsupermon
+	install -Dm644 example-wmsupermonrc $(DESTDIR)/etc/wmsupermon/user.wmsupermonrc
 
 tarball:
 	grep -F '"$(subst wmsupermon-,,$(notdir $(CURDIR)))"' wmsupermon.c > /dev/null

@@ -8,10 +8,10 @@ dnl  version
 
 AC_INIT(WMBiff, 0.4.27, wmbiff-devel@lists.sourceforge.net, wmbiff)
 AC_CONFIG_AUX_DIR(autoconf)
-AM_INIT_AUTOMAKE(wmbiff, 0.4.27) dnl tarded syntax for automake <= 1.5
+AM_INIT_AUTOMAKE([1.14])
 AC_CONFIG_HEADER([config.h])
 dnl make sure autoheader finds version, implicitly defined above.
-AH_TEMPLATE([VERSION], [wmbiff's release version])
+AH_TEMPLATE([VERSION], [wmbiff release version])
 AC_SUBST(VERSION)
 
 AC_PROG_INSTALL

@@ -5,31 +5,25 @@ OBJS  = wmppp.o \
 		../wmgeneral/wmgeneral.o \
 		../wmgeneral/misc.o \
 		../wmgeneral/list.o
+DESTDIR =
+PREFIX = /usr
 
 .c.o:
 	cc -g -c $(CFLAGS) -Wall $< -o $*.o
 
+all: wmppp getmodemspeed
+
 wmppp: $(OBJS)
 	cc -o wmppp $^ -lXext $(LIBDIR) $(LIBS)
 
-all:: wmppp getmodemspeed
-
-clean::
+clean:
 	for i in $(OBJS) ; do \
 		rm $$i; \
 	done
 	rm wmppp getmodemspeed
 
-install::
-	
-	cp -f wmppp /usr/local/bin/
-	chmod 755 /usr/local/bin/wmppp
-	chown root:root /usr/local/bin/wmppp
-	cp getmodemspeed /etc/ppp/
-	chmod 755 /etc/ppp/getmodemspeed
-	chown root.root /etc/ppp/getmodemspeed
-	cp -f user.wmppprc /etc/wmppprc
-	chmod 644 /etc/wmppprc
-	chown root.root /etc/wmppprc
-	cp -f user.wmppprc $(HOME)/.wmppprc
-	echo "WMPPP installation finished."
+install: wmppp getmodemspeed
+	install -Dm755 wmppp $(DESTDIR)$(PREFIX)/bin/wmppp
+	install -Dm755 getmodemspeed $(DESTDIR)$(PREFIX)/bin/getmodemspeed
+	install -Dm644 system.wmppprc $(DESTDIR)/etc/wmppp/system.wmppprc
+	install -Dm644 user.wmppprc $(DESTDIR)/etc/wmppp/user.wmppprc

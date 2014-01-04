@@ -23,3 +23,6 @@ wmacpi:	$(OBJS)
 
 clean:
 	rm -f *.o *~ wmacpi trace *.out *.bb *.bbg
+
+install:
+	install -Dm755 wmacpi $(DESTDIR)/usr/bin/wmacpi

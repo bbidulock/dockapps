@@ -3,8 +3,8 @@
 #
 
 DESTDIR =
-GNUSTEP_BINDIR = /usr/local/GNUstep/Apps/Temperature.app
-X11_BINDIR = /usr/X11R6/bin
+GNUSTEP_BINDIR = /usr/bin
+X11_BINDIR = /usr/bin
 
 CXX=c++
 CXXFLAGS += -Wall -pedantic -fno-rtti -fno-exceptions -O2 -I/usr/X11R6/include
@@ -19,7 +19,7 @@ Temperature.app: $(OBJECTS)
 
 .PHONY:	install install-gnustep install-x11 clean
 
-install: install-gnustep
+install: install-x11
 
 install-gnustep: all
 	install -d  $(DESTDIR)$(GNUSTEP_BINDIR)

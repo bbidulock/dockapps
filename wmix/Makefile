@@ -5,8 +5,7 @@ OBJECTS		= misc.o mixer-oss.o ui_x.o wmix.o
 
 # where to install this program (also for packaging stuff)
 DESTDIR		=
-PREFIX		= $(DESTDIR)/usr/X11R6
-INSTALL		= -m 755
+PREFIX		= /usr
 
 wmix: $(OBJECTS)
 	$(CC) -o $@ $(LDFLAGS) $(OBJECTS) -lXpm -lXext -lX11 -lm
@@ -15,4 +14,4 @@ clean:
 	rm -rf *.o wmix *~
 
 install: wmix
-	install $(INSTALL) wmix $(PREFIX)/bin
+	install -Dm755 wmix $(DESTDIR)$(PREFIX)/bin/wmix

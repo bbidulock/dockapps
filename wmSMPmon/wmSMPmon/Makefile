@@ -17,6 +17,8 @@ INSTALLMANFLAGS = -m 644
 CC = gcc
 CFLAGS = -Wall -O2 -g
 LIB = -L/usr/X11R6/lib -lXpm -lXext -lX11
+DESTDIR =
+PREFIX = /usr
 
 ifeq ($(OS),Linux)
 SRC += sysinfo-linux.c
@@ -38,6 +40,5 @@ clean:
 	rm -rf ../wmgeneral/*.o
 
 install:
-	$(INSTALL) $(INSTALLEXEFLAGS) $(EXE) $(BINDIR)
-	$(INSTALL) -d $(MANDIR)/man1
-	$(INSTALL) $(INSTALLMANFLAGS) $(MAN) $(MANDIR)/man1
+	install -Dm755 wmSMPmon $(DESTDIR)$(PREFIX)/bin/wmSMPmon
+	install -Dm644 wmSMPmon.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmSMPmon.1

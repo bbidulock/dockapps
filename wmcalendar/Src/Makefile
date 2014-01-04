@@ -8,12 +8,13 @@ LFLAGS = `pkg-config --libs gtk+-2.0`
 X11BASE = /usr/X11R6
 CFLAGS =  $(INCLUDES) -DICON_TYPE=$(ICON_TYPE)
 INCDIR = -I$(X11BASE)/include/X11 -I$(X11BASE)/include -I$/usr/include -I$/usr/local/include
-DESTDIR= /usr/local
+DESTDIR= 
+PREFIX= /usr/local
 LIBDIR = -L/usr/lib -L${X11BASE}/lib -L/usr/local/lib
 PACKAGE = wmCalendar
 
 # for Linux
-LIBS   = $(LIBDIR) -lXpm -lical -lpthread
+LIBS   = $(LIBDIR) -lm -lXpm -lX11 -lXext -lical -lpthread
 # for Solaris (untested!!!)
 # LIBS   = -lXpm -lX11 -lXext -lsocket -lnsl -lical
 
@@ -40,6 +41,6 @@ clean:
 	rm -f wmCalendar
 
 install:: wmCalendar
-	install -c -s -m 0755 wmCalendar $(DESTDIR)/bin/
-	install -c -m 0644 wmCalendar.1 $(DESTDIR)/man/man1 
+	install -Dm0755 wmCalendar $(DESTDIR)$(PREFIX)/bin/wmCalendar
+	install -Dm0644 wmCalendar.1 $(DESTDIR)$(PREFIX)/share/man/man1/wmCalendar.1
 

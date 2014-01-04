@@ -6,7 +6,7 @@ dnl AM_INIT_AUTOMAKE(wmcpuload, 0.9.0)
 AC_INIT(wmcpuload, 1.0.0, ssato@sh.rim.or.jp)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE($PACKAGE_NAME, $PACKAGE_VERSION)
+AM_INIT_AUTOMAKE([1.14 subdir-objects])
 
 AC_CONFIG_SRCDIR(src/main.c)
 AM_CONFIG_HEADER(config.h)

@@ -16,6 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#define _BSD_SOURCE 1
+
 #include <ctype.h>
 #include <err.h>
 #include <limits.h>
@@ -27,6 +29,8 @@
 #include <unistd.h>
 #include <X11/X.h>
 #include <X11/xpm.h>
+#include <getopt.h>
+#include <bsd/string.h>
 
 #include "wl.h"
 #include "xutils.h"

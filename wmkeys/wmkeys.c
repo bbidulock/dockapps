@@ -94,7 +94,7 @@ void enable_configuration(int n);
  * Main
  */
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   num_configs = 0;
   current_config = 0;
@@ -105,6 +105,7 @@ void main(int argc, char *argv[])
 	
   read_config();
   wmkeys_routine(argc, argv);
+  exit(0);
 }
 
 /*
@@ -176,10 +177,10 @@ void draw_string(char* s)
 }
 
 /*
- * getline()
+ * getaline()
  */
 
-int getline(FILE* pfile, char* s, int lim)
+int getaline(FILE* pfile, char* s, int lim)
 {
   int c = 0, i;
   for(i=0; i<lim-1 && (c=fgetc(pfile)) != EOF && c!='\n'; ++i) {
@@ -226,10 +227,10 @@ void read_config()
   }
 
   while(!feof(pfile)) {
-    getline(pfile, key, 256);
+    getaline(pfile, key, 256);
 
     if(!feof(pfile)) {
-      getline(pfile, value, 256);
+      getaline(pfile, value, 256);
 
       configs[num_configs].name = malloc(sizeof(char)*strlen(key)+1);
       strcpy(configs[num_configs].name, key);

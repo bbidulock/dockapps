@@ -697,7 +697,7 @@ update_frame5 (const APP *a, int full)
 }
 
 
-static int
+static void
 update_text (SENSOR *list)
 {
     (void)list;
