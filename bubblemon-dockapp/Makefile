@@ -7,7 +7,7 @@ EXTRA += -DKERNEL_26
 # EXTRA += -DUPSIDE_DOWN_DUCK
 
 # where to install this program
-PREFIX = /usr/local
+PREFIX = $(DESTDIR)/usr
 
 # no user serviceable parts below
 EXTRA += $(WMAN)
