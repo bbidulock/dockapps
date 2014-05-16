@@ -1,0 +1,5 @@
+bg_image pixmaps/radar.xpm
+def_color hand_second 0 128 0
+def_color hand_outline 0 128 0
+def_color hand_fill 128 255 128
+import radar.hands

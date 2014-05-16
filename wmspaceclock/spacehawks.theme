@@ -1,0 +1,4 @@
+bg_image pixmaps/spacehawks-square.png
+def_color hand_outline 128 0 0
+def_color hand_fill 255 255 255
+import floating_tick.hands

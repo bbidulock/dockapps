@@ -1,0 +1,109 @@
+2003-05-18 12:31  attis74
+
+	* Makefile: Version bump
+
+2003-05-18 12:30  attis74
+
+	* clockapp.cpp, clockapp.h, configure, dockapp.cpp, dockapp.h,
+	spaceclock.cpp: Added XSetCommand and fixed BSD pthread problem as
+	suggested by Alban Hertroys
+
+2003-01-18 13:48  attis74
+
+	* Makefile: configure script added
+
+2003-01-18 13:43  attis74
+
+	* Makefile, config.cpp, index.html, spaceclock.cpp: Makefile
+	upgrade, STLport autodetection via configure
+
+2003-01-18 11:38  attis74
+
+	* Makefile, index.html: index.html added to archive, pclock.theme
+	added.
+
+2003-01-05 17:19  attis74
+
+	* clockapp.cpp, clockapp.h, dockapp.cpp, dockapp.h, index.html,
+	spaceclock.cpp:
+	----------------------------------------------------------------------
+	fixed exact option
+
+2002-10-11 10:11  attis74
+
+	* index.html: Updated project home page to point to project
+	downloads
+
+2002-10-08 11:26  attis
+
+	* Makefile, index.html, spaceclock.cpp: Documentation (readme)
+	added to CVS and Makefile
+
+2002-10-08 11:15  attis
+
+	* clockapp.cpp, raster.h, raster_bad.cpp, scanliner.cpp,
+	scanliner.h: Rasterizer was redesigned. Now the rasterizer
+	implementation is template free and is independent of any container
+	types. Some more virtual functions added, though.
+
+2002-10-08 10:07  attis
+
+	* Makefile, clockapp.cpp, clockapp.h: new (correct) local time
+	calculation
+
+2002-10-07 10:14  attis
+
+	* Makefile, clockapp.cpp, config.cpp, config.h: hand order option
+	added, default hand order is wrong
+
+2002-10-04 14:57  attis
+
+	* master.xpm, spaceclock.h, tokenizer.cpp, tokenizer.h: missing
+	files added
+
+2002-10-04 14:56  attis
+
+	* Makefile, clockapp.cpp, config.cpp, spaceclock.cpp: install
+	option
+
+2002-10-04 13:58  attis
+
+	* Makefile, clockapp.cpp, clockapp.h, config.cpp, config.h,
+	dockapp.cpp, dockapp.h, master.xpm, rgb_buffer.cpp, rgb_buffer.h,
+	spaceclock.cpp: old vertex iterators
+
+2002-10-03 10:44  attis
+
+	* Makefile, config.cpp, config.h: config module put back
+
+2002-10-03 10:14  attis
+
+	* Makefile, clockapp.cpp, config.h, raster.h, raster_bad.cpp:
+	separated rasterizer call for easier multi-polygon rendering of
+	non-overlapping shapes
+
+2002-10-02 17:52  attis
+
+	* Makefile, clockapp.cpp, clockapp.h, config.cpp, config.h,
+	rgb_buffer.cpp, rgb_buffer.h: background image, config file
+	skeleton
+
+2002-10-02 14:54  attis
+
+	* clockapp.cpp, clockapp.h, dockapp.h, raster_bad.cpp,
+	scanliner.cpp, scanliner.h: hour and minute hand
+
+2002-10-02 12:27  attis
+
+	* Makefile, clockapp.cpp, clockapp.h, dockapp.cpp, dockapp.h,
+	master.xpm, raster.cpp, raster.h, raster_bad.cpp, raster_bad.h,
+	rgb_buffer.cpp, rgb_buffer.h, scanliner.cpp, scanliner.h,
+	spaceclock.cpp, util.h: Initial revision
+
+2002-10-02 12:27  attis
+
+	* Makefile, clockapp.cpp, clockapp.h, dockapp.cpp, dockapp.h,
+	master.xpm, raster.cpp, raster.h, raster_bad.cpp, raster_bad.h,
+	rgb_buffer.cpp, rgb_buffer.h, scanliner.cpp, scanliner.h,
+	spaceclock.cpp, util.h: SpaceClock
+

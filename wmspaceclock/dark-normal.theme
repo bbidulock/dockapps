@@ -1,0 +1,5 @@
+bg_image pixmaps/square-dark.png
+def_color hand_second 64 32 32
+def_color hand_outline 0 0 0
+def_color hand_fill 255 255 192
+import boring.hands

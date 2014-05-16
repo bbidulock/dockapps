@@ -1,0 +1,28 @@
+#!/bin/sh
+
+echo "# STLport specific" > configure.mk
+
+# check if running on BSD
+if [ `uname | sed 's/.*BSD/BSD/'` = "BSD" ] ; then
+		echo "Found BSD, using -pthread option"
+        PTHREAD=-pthread
+else
+		echo "Using -lpthread"
+        PTHREAD=-lpthread
+fi
+
+if [ -d /usr/include/stlport ]; then
+	echo "CPPFLAGS += -I/usr/include/stlport" >> configure.mk
+	echo "LDFLAGS += -lstlport_gcc ${PTHREAD}" >> configure.mk
+	echo "Found stlport in /usr/include."
+else
+	if [ -d /usr/local/include/stlport ]; then
+		echo "CPPFLAGS += -I/usr/local/include/stlport" >> configure.mk
+		echo "LDFLAGS += -lstlport_gcc ${PTHREAD}" >> configure.mk
+		echo "Found stlport in /usr/local/include."
+	else
+		echo "#CPPFLAGS += -I/usr/local/include/stlport" >> configure.mk
+		echo "#LDFLAGS += -lstlport_gcc ${PTHREAD}" >> configure.mk
+		echo "Couldn't find stlport, be prepared for high CPU load."
+	fi
+fi

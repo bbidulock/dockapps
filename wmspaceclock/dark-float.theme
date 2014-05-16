@@ -1,0 +1,4 @@
+bg_image pixmaps/square-dark.png
+def_color hand_outline 64 64 64
+def_color hand_fill 255 255 192
+import floating_tick.hands

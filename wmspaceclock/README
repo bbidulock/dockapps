@@ -1,0 +1,130 @@
+wmspaceclock
+
+                                  Screenshots
+
+   [logo.png] [white.png] [blue.png] [glow.png] [dark.png]
+   [wristwatch.png] [brown.png] [radar.png] [green.png] [white2.png]
+
+   (The light-blue border is my fluxbox slit, it will be replaced by the
+   background of the dock of your window manager.)
+     _________________________________________________________________
+
+                                  Description
+
+   wmspaceclock (or spaceclock for short) is an antialiased analog clock
+   for the Window Maker dock to show the current local time. wmspaceclock
+   falls under the GPL (GNU General Public License)
+
+   I wrote this program because I haven't found a nice antialiased analog
+   clock for my [1]fluxbox slit. After searching the net I found only
+   pclock and astime, but neither had the cool antialiasing hands of
+   asclock_applet shipped with GNOME. I found the AfterStep version of
+   the GNOME applet, but it didn't have that nice antialiased theme I
+   wanted so much.
+
+   The clock I liked most (though I wouldn't really use it) was
+   wmfishtime by timecop <timecop at japan dot co dot jp>. I had a look
+   at its source code, this was the one which inspired me to write my own
+   clock applet. pclock was the second on my list, it lived in my fluxbox
+   slit until I finished spaceclock. Also I have stolen some background
+   pixmaps from the pclock distribution.
+
+   Spaceclock uses a simple algorithm utilizing a subpixel mask to draw
+   antialiased polygons. It could be enhanced further both in memory
+   usage and output quality with a smarter algorithm, but the currently
+   implemented approach seem to be acceptable for me.
+
+   Why spaceclock? This is simple: I am a member of a small scene group
+   called ([2]SpaceHawks). It was pretty straightforward to use the word
+   "space" . Also, it is very useful to fill the unused space on your
+   screen...
+     _________________________________________________________________
+
+                                   Features
+
+     * Window Maker dock applet (may be used with BlackBox of FluxBox as
+       well)
+     * Antialiased analog clock display
+     * Background image loading via gdk-pixbuf
+     * Configurable hand shapes via config file
+     * Approximately 6-levels of transparency in current rasterizer
+       implementation
+     * Themes
+     * Written from scratch using C++
+     _________________________________________________________________
+
+                                 Requirements
+
+     * gdk-pixbuf is required to compile spaceclock
+     * [3]STLport or other high performance STL implementation highly
+       recommended (the version compiled with STLport uses 20 times less
+       CPU time on my Mandrake 8.2 system with gcc 3.0.4)
+     _________________________________________________________________
+
+                                     Bugs
+
+     * Configuration file loader should report more descriptive errors
+       instead of throwing a never catched exception. Config file parser
+       may have to be rewritten to fix this.
+     * Segfault may happen if hands are too long and they are drawn
+       outside of the 64x64 pixel applet area. Some checking may be
+       approriate in the rasterizer algorithm.
+     * Background pixmaps having other than 64x64 pixel size may result
+       to unexpected behaviour. Possibly a meaningful error message would
+       make sense.
+     _________________________________________________________________
+
+                                 Major changes
+
+     * 1.0 initial version
+     * 1.1 fixed local time display
+     * 1.2 implemented exact option
+     _________________________________________________________________
+
+                                   Download
+
+     * Current source [4]spaceclock archive
+     * Sourceforge [5]project page
+     _________________________________________________________________
+
+                                     Todo
+
+     * Rasterizer quality should be improwed a bit.
+     * Alpha channel for hands would be nice, it would make sense for the
+       radar theme at least.
+     * Some themes with shadows could be created.
+     * Exact option is implemented now, but some things might be possible
+       to make it more accurate.
+     _________________________________________________________________
+
+                               Acknowledgements
+
+   Thanks to Alexander Kourakos for his excellent clock applet called
+   pclock. I used some nice pixmaps from his archive to make spaceclock
+   look even better.
+
+   Thanks to Timecop for the cool wmfishtime clock. I based parts of my
+   program on his work.
+     _________________________________________________________________
+
+                                     Links
+
+     * Get other cool dock apps at the [6]DockApp Warehouse
+     * [7]SpaceHawks home
+     * [8]wmclock
+     _________________________________________________________________
+
+   Copyright 2001-2002 Attila Tajti <attis at spacehawks dot hu>
+   [9]SourceForge Logo
+
+References
+
+   1. http://fluxbox.sf.net/
+   2. http://www.spacehawks.hu/
+   3. http://www.stlport.org/
+   4. https://sourceforge.net/project/showfiles.php?group_id=63940&release_id=160052
+   5. https://sourceforge.net/projects/wmspaceclock/
+   6. http://www.bensinclair.com/dockapp/
+   7. http://www.spacehawks.hu/
+   8. http://www.schau.com/linux/wmclock/index.html
+   9. http://sourceforge.net/

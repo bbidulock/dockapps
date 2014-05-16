@@ -1,0 +1,4 @@
+bg_image pixmaps/glowclock.xpm
+def_color hand_outline 0 64 0
+def_color hand_fill 128 255 128
+import floating_tick_out.hands
