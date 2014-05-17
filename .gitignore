@@ -1,1 +1,3 @@
 *.o
+.*.sw[nop]
+autom4te.cache/
