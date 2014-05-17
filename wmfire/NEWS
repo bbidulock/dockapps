@@ -1,0 +1,25 @@
+
+ 24/08/1999
+	wmfire shows the numbers corresponding to the flame height by default
+	now (didn't at all before), you can turn this off via -s0
+
+	Now, wmfire will spawn external processes (just once, just one) to
+	determine the height of the flame.. Two such programs are included
+	with wmfire.. -c, -n, -F, -S, -m, and -x options were removed, now
+	there is a -P options to tell wmfire which program to run..
+
+	File stuff below was replaced, as were the default CPU load functions.
+
+-- Dates below here unknown
+	wmfire can now read numbers from a file... This should make it able
+	to monitor temperature via lm_sensors and /proc/sys/dev/sensors/*
+	Added options for this are -S, -F, -m, and -x
+
+	Added -c option to choose the CPU to monitor for SMP linux machines,
+	give it a whirl ;)
+
+	Added colormaps/-C option, try it out
+
+	wmfire has a few options, namely -L and -B, they control
+	if the fire follows the load, and if the load bar is shown,
+	respectively.

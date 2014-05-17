@@ -1,0 +1,36 @@
+
+
+     !! This should be considered a beta release.. You have been warned.. !!
+
+	Ok, I wrote this mainly because I was pissed at how much CPU
+	wmflame took (it could be easily fixed, however), and I wanted
+	to use a fire algo that looks a bit different, and hey, it's
+	always nice to have your own dockapps laying around the desktop.
+
+							-zinx-
+
+Invoking:
+        wmfire	[-L[1|0|on|off|yes|no]] [-B[1|0|on|off|yes|no]]] [-C<0..2>]
+        	[-s[1|0|on|off|yes|no]] [-P <program [args [...]]>] [-h]
+
+        -L        Toggles/Sets if flame height follows load
+        -B        Toggles/Sets if load bar shows
+        -s        Toggles/Sets if the numbers are shown
+        -C<0..2> Start at a different colormap
+        -P <...>  Set "load program"; will be expanded by shell...
+        -h       Shows this short bit of help
+
+Examples:
+	Use lm_sensors to follow the temperature of the cpu (at least on my comp):
+	wmfire -P "fireload_file -F /proc/sys/dev/sensors/*/temp1 -S '%s%s' -m 40 -x 51"
+
+	Start up wmfire with no bar, and a cyanish flame, and follow load:
+	wmfire -B0 -C2
+
+	Start up wmfire with a bar, and follow load but don't show nice'd processes:
+	wmfire -P "fireload_file -n"
+
+	Full flame height all the time, no bar, flame with no blue, no numbers:
+	wmfire -L0 -B0 -C1 -s0
+
+All comments/questions should be directed towards zinx@linuxfreak.com

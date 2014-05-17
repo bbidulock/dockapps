@@ -1,0 +1,41 @@
+Changes upto version 1.2.4:
+--------------------------
+
+o Fix linking math library with --no-add-needed or --as-needed
+
+Changes upto version 1.2.3:
+--------------------------
+
+o Fix regression which was creating a second window on some WM's
+o Add sticky option
+
+Changes upto version 1.2.2:
+--------------------------
+
+o Fix network monitoring over 4Gb <Markus Demleitner>
+o Fix GTK 2.4 docking <Sergey Pinaev>
+  (WMHints handling changed in GTK 2.4, fix backwords compatible.)
+o Fix scroll wheel
+o Add simple file monitoring
+
+Changes upto version 1.2.1:
+--------------------------
+
+o Fix memory leak in event handling
+
+Changes upto version 1.2.0:
+--------------------------
+
+o Build against gdk2 libraries
+o Optional (non-working) session management
+o Icon
+
+Changes upto version 1.0.0:
+--------------------------
+
+o Rewritten to use gdk
+o Rewritten to use libgtop
+o Added memory monitoring
+o Added network monitoring
+o Removed file monitoring
+o Added proximity events

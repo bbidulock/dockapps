@@ -1,0 +1,14 @@
+In the words of the author of wmfishtime without whom this program would not
+have been made :-)
+
+"If you get a gray box and nothing else after you start this dockapp, you
+have a retarded broken window manager such as E, recent versions of the KDE
+window manager, etc. Remember that if you get this your system totally sucks
+ass, and you have to use "-b" option to fix this. If you feel offended by
+this, make sure and let developers of E and KWM know that they suck."
+
+						Timecop
+
+All the old style dock apps that use wmgeneral source actually redraw both
+source GCs for win and iconwin. However, they only refresh once or twice a
+second...

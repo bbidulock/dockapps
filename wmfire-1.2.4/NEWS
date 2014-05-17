@@ -1,0 +1,41 @@
+Miscellaneous Ramblings
+-----------------------
+
+So, I tried to be clever and use rate adaptive network monitoring.
+Needless to say, it didn't seem to work quite properly...always reading
+too low. If slowly polled once per second without any filesystem blocking
+I believe it should work.
+
+----CODE----
+
+int
+update_net()
+{
+        glibtop_netload netload;
+        unsigned long netdif;
+        static unsigned long netmax = 1, netold = 0;
+        int percent;
+
+        glibtop_get_netload(&netload,net_dev);
+
+        netdif = netload.bytes_total - netold;
+
+        /* Reinitialise or restart on network down */
+        if (net_init || netdif < 0) {
+                net_init = 0;
+                netmax = 1;
+                netold = netload.bytes_total;
+
+                return 0;
+        }
+
+        /* Rate adaptive to maximum transmission */
+        if (netdif > netmax)
+                netmax = netdif;
+
+        percent = 100 * netdif / netmax;
+
+        netold = netload.bytes_total;
+
+        return percent;
+}

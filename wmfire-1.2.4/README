@@ -1,0 +1,44 @@
+Wmfire
+------
+
+Wmfire is a flaming dock app which can monitor your cpu, memory, or network
+load. It features;
+
++ Monitor cpu load
++ Monitor memory load
++ Monitor net load
++ Monitor file value
+
+* Left click to change the status monitor (unless locked)
+* Middle click to hide/show nice'd process on cpu load
+* Right click to change flame colour (unless locked)
+* Mouse wheel up or down is the same as left click
+
+On mouse over the cursor will disappear and be replaced by a burning spot
+at that location. After two seconds symbols will be burnt to represent what
+is being monitored. For cpu, a short solid bar for average load, or a line
+of dots representing the current cpu number on SMP systems. For the memory,
+a 4x4 grid of dots is used to signify a memory array. For the network, a
+line of marching dots is like data passing through a cable. For file
+values, a spinning disk platter is shown.
+
+(Note that not all window managers support all mouse over effects.)
+
+This uses the GDK and libgtop libraries and should be portable to most Unix
+architectures with the Gnome enviroment.
+
+The original GDK routine came from the ubercool wmfishtime dock application
+written by timecop over at http://www.ne.jp/asahi/linux/timecop/ which has
+swimming fish, an anti-aliased analog clock, and alpha blended bubbles.
+Using this is much faster than the historic wmgeneral source.
+
+Like wmfishtime, this program is afflicted by the broken window manager
+problem. So if you get a grey box use the "-b" option.
+
+If you discover any bugs then please report them to me at
+<swanson@ukfsn.org> where I'd be happy to answer any questions.
+
+http://www.swanson.ukfsn.org
+
+Wmfire is licensed through the GNU General Public License.
+Read the COPYING file for the complete GNU license.

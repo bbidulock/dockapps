@@ -1,0 +1,5 @@
+SUBDIRS = src
+
+man_MANS = wmfire.1
+
+EXTRA_DIST = ALL_I_GET_IS_A_GREY_BOX

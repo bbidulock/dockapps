@@ -1,0 +1,39 @@
+
+ 24/08/1999
+	Added some stuff so you can see the exact numbers being returned by
+	the external programs...
+
+	Made major change as to where wmfire gets the load from.. it now
+	calls external programs.. Should make making your own load functions
+	a bit easier.. I dunno though.. It'll certainly keep down the size
+	of the main program...
+
+ 14/08/1999
+	Finally got off my ass and added some stuff... (Ok.. one thing)
+
+	I gave wmfire the ability to read info from a file.. it might not
+	be very efficient for large files right now, but I may add some options
+	to help with that.. it _should_ be perfectly ok for monitoring
+	temperature and the like; I use:
+		wmfire -F /proc/sys/dev/sensors/*/temp1 -S %s%s -m 40 -x 55
+	to monitor temperatures.. your mileage may vary..
+
+ 19/07/1999
+	Day after the post on freshmeat..
+
+	applied a patch by Hubert Feyrer that lets it monitor load on NetBSD.
+
+	gave it a new option: '-c', lets you choose the CPU to monitor on SMP
+	linux machines..
+
+ 26/06/1999
+	Decided to do some stuff...
+
+	added more colormaps (changed via new -C option or
+	right click whilst running)
+
+	fixed some configure junk
+
+ 21/06/1999 (Released as 0.0.1)
+	Second day of devel, make load stuff look better and
+	made the stuff use GNU autoconf/automake

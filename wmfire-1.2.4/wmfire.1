@@ -1,0 +1,128 @@
+.\" Man Page for WMFIRE
+.\" groff -man -Tascii wmfire.1
+
+.TH WMFIRE 1 "June 2004"
+
+.SH NAME
+wmfire \- Fiery dock app monitor
+
+.SH SYNOPSIS
+.B wmfire
+[-b]
+[-c CPU]
+[-f COLOUR]
+[-F FILE]
+[-g GEOMETRY]
+[-h]
+[-H MAX]
+[-i INTERFACE]
+[-l]
+[-L MIN]
+[-m]
+[-n]
+[-p]
+[-s SPEED]
+[-x]
+[-y]
+
+.SH "DESCRIPTION"
+.PP
+.B wmfire
+is flaming dock app which can monitor your cpu, memory, network or a file.
+.PP
+.B o
+Left click to change the status monitor (unless locked)
+.br
+.B o
+Middle click to hide/show nice'd process on cpu load
+.br
+.B o
+Right click to change flame colour (unless locked)
+.br
+.B o
+Mouse wheel up or down is the same as left click
+.PP
+On mouse over the cursor will disappear and be replaced by a burning spot
+at that location. After two seconds symbols will be burnt to represent what
+is being monitored. For cpu, a short solid bar represents average load or a
+line of dots representing the current cpu number on SMP systems. For the
+memory, a grid of dots is used to signify a memory array. For the network, a
+line of marching dots is like data passing through a cable. For file values,
+a spinning disk platter is shown.
+.PP            
+(Not all window managers support all mouse over effects.)
+
+.SH OPTIONS
+.TP
+.B -b
+Activate broken window manager fix (if grey box diplayed)
+.TP
+.B -c [0..3]
+.br
+Monitor SMP CPU number X
+.TP
+.B -f [1..4]
+Change flame colour
+.br
+(1:Natural 2:Coronal 3:Blue 4:Green)
+.TP
+.B -F [...]
+Monitor file
+.TP
+.B -g [{+-}X{+-}Y]
+Set initial window position
+.TP
+.B -h
+Show help
+.TP
+.B -H [...]
+Set maximum (high) value for file monitoring
+.TP
+.B -i [...]
+Change the network interface
+.br
+(Default is "ppp0")
+.TP
+.B -l
+Lock flame colour and monitor
+.TP
+.B -L [...]
+Set minimum (low) value for file monitoring
+.TP
+.B -m
+Monitor the memory load
+.TP
+.B -n
+Monitor the network traffic
+.TP 
+.B -p
+Fire effect only (no monitoring)
+.TP
+.B -s [...][K|M]
+Change the network speed - kilobytes or megabytes
+.br
+(Automatic preset values for interfaces: ppp=56K eth=100M)
+.TP
+.B -x
+Exclude nice'd CPU load
+.TP
+.B -y
+Set window sticky for window managers which do not support dock apps
+
+.SH "EXAMPLES"
+.B wmfire -F /tmp/file -L 40 -H 60 -i eth2 -s 1000M
+
+.SH "NOTES"
+The file monitoring will only read the first value in a file. For complex
+parsing use an external program to read the required value and write it
+to the same file wmfire is set to read.
+
+.SH BUGS
+Please report any bugs you may find to:
+.TP
+.B swanson@ukfsn.org
+
+.SH AUTHOR
+Alan Swanson <alan.swanson@ukfsn.org>
+.LP
+http://www.swanson.ukfsn.org
