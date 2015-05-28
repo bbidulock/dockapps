@@ -58,8 +58,8 @@ struct connection_state {
 	int sd;
 	char *name;
 #ifdef USE_GNUTLS
-	gnutls_session tls_state;
-	gnutls_certificate_credentials xcred;
+	gnutls_session_t tls_state;
+	gnutls_certificate_credentials_t xcred;
 #else
 	/*@null@ */ void *tls_state;
 	/*@null@ */ void *xcred;
@@ -137,7 +137,7 @@ static int wait_for_it(int sd, int timeoutseconds)
             // DMA(DEBUG_INFO,
             //    "select %d/%d returned %d descriptor, %d\n",
             //    sd, timeoutseconds, ready_descriptors, FD_ISSET(sd, &readfds));
-            
+
         } while(tv.tv_sec > 0 && (!FD_ISSET(sd, &readfds) || (errno == EINTR && ready_descriptors == -1)));
 
         FD_ZERO(&readfds);
@@ -364,13 +364,13 @@ warn_certificate(const struct connection_state *scs, const char *msg)
 #define CERT_SEP "-----BEGIN"
 
 /* this bit is based on read_ca_file() in gnutls */
-static int tls_compare_certificates(const gnutls_datum * peercert)
+static int tls_compare_certificates(const gnutls_datum_t * peercert)
 {
-	gnutls_datum cert;
+	gnutls_datum_t cert;
 	unsigned char *ptr;
 	FILE *fd1;
 	int ret;
-	gnutls_datum b64_data;
+	gnutls_datum_t b64_data;
 	unsigned char *b64_data_data;
 	struct stat filestat;
 
@@ -423,13 +423,13 @@ static int tls_compare_certificates(const gnutls_datum * peercert)
 
 static void
 tls_check_certificate(struct connection_state *scs,
-					  const char *remote_hostname) 
+					  const char *remote_hostname)
 {
 	int ret;
 	unsigned int certstat;
-	const gnutls_datum *cert_list;
+	const gnutls_datum_t *cert_list;
 	unsigned int cert_list_size = 0;
-	gnutls_x509_crt cert;
+	gnutls_x509_crt_t cert;
 
 	if (gnutls_auth_get_type(scs->tls_state) != GNUTLS_CRD_CERTIFICATE) {
 		bad_certificate(scs, "Unable to get certificate from peer.\n");
@@ -539,7 +539,7 @@ tls_check_certificate(struct connection_state *scs,
 	return;
 }
 
-struct connection_state *initialize_gnutls(int sd, char *name, Pop3 pc,
+struct connection_state *initialize_gnutls(intptr_t sd, char *name, Pop3 pc,
 										   const char *remote_hostname)
 {
 	static int gnutls_initialized;
@@ -598,7 +598,7 @@ struct connection_state *initialize_gnutls(int sd, char *name, Pop3 pc,
 		gnutls_cred_set(scs->tls_state, GNUTLS_CRD_CERTIFICATE,
 						scs->xcred);
 		gnutls_transport_set_ptr(scs->tls_state,
-								 (gnutls_transport_ptr) sd);
+								 (gnutls_transport_ptr_t) sd);
 		do {
 			zok = gnutls_handshake(scs->tls_state);
 		}

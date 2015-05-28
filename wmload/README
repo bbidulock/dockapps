@@ -1,0 +1,63 @@
+>================================================<
+wmload - WindowMaker load gauge
+Updated, cleaned up and "fixed"
+==================================================
+
+NOTE:
+	This is a load monitor which is designed
+	to work with the PROC filesystem. Generally
+	all Linux systems come with the PROC fs.
+	If you're using a different Unix and it
+	doesn't have the PROC fs, first see if
+	there is one available... otherwise this
+	monitor won't work!
+	Work is currently underway to produce a
+	more `portable'	wmload that Solaris/Sun/HP etc.
+	users can also enjoy.
+
+SUGGESTED INVOCATION (for WindowMaker!):
+	`wmload -shape -withdrawn &'
+
+	OR for a different graph color:
+	`wmload -led ??? -shape -withdrawn &'
+	...replace "???" with a color name
+	eg. green, red, orange, yellow, orchid, purple....
+	any of your systems standard X color symbols.
+
+SUGGESTED INVOCATION (for AfterStep):
+	To load wmload in Wharf, add a line in .steprc:
+*Wharf wmload nil MaxSwallow "wmload" wmload -led green -shape &
+	...or to run it as a normal app: wmload -led "???" &
+	NOTE: AfterStep doesn't require the "-withdrawn" option.
+
+AVAILABILITY:
+	The latest release should be available from:
+		http://windowmaker.org/dockapps?name=wmload
+
+TODO LIST:
+	-Implement alternative `load' algorithms?
+
+LIABILITY & USABILITY:
+	As usual, this software is bound by the
+	GNU public license. You can use it however
+	you see fit, as long as all the README's
+	accompany any copy/version of it.
+	THE KIND SOLES WHO HAVE WRITTEN/CONTRIBUTED
+	TO THIS SOFTWARE, IN NO WAY ACCEPT LIABILITY
+	OR ANY RESPONSIBILITY FOR THE USE OF, OR FOR
+	ANY CONSEQUENCES RESULTING FROM THE USE OF
+	THIS SOFTWARE.
+	...that having been said, I think you'll
+	like this new version and shouldn't have
+	problems with it. Happy load monitoring!
+
+FEEDBACK etc:
+	Maintainer of the current version...
+	Window Maker Developers Team, wmaker-dev@lists.windowmaker.org
+
+	Previously maintained by...
+	Ryan Land, rland@bc1.com
+	Nic Bernstein
+	Beat Christen, bchriste@iiic.ethz.ch (asload)
+
+                     ---<o>---

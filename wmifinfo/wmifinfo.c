@@ -1,4 +1,7 @@
-	 
+/*
+ * $Id: wmifinfo.c,v 1.4 2004/07/11 12:00:46 ico Exp $
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #ifdef linux
@@ -46,6 +49,7 @@
 #define MAXIFS 10
 #ifdef linux
 #define DELAY 1000000L
+#define USEC_PER_SEC 1000000L
 #else
 #define DELAY 100000L
 #endif
@@ -55,7 +59,7 @@
 struct ifinfo_t {
 	char id[16];
 	int state;
-	char hw[6];
+	unsigned char hw[6];
 	uint32_t ip;
 	uint32_t nm;
 	uint32_t gw;
@@ -104,28 +108,28 @@ void getifnames(void);
 int getifinfo(char *ifname, struct ifinfo_t *info);
 
 
-	
+
 
 void drawtext(char *str, struct font_t *font, int x, int y)
 {
 	int i = 0;
 	int ix, iy;
 	char *p;
-		
+
 	while(str[i]) {
 		p = strchr(font->chars, str[i]);
 		ix = (p) ? (p - font->chars) : 0;
-		
+
 		iy = (ix / font->charspline);
 		ix = (ix % font->charspline);
-	
-		copyXPMArea(	font->sx + ix * font->dx, 
+
+		copyXPMArea(	font->sx + ix * font->dx,
 				font->sy + iy * font->dy,
-				font->dx, 
+				font->dx,
 				font->dy,
-				x + font->dx * i, 
+				x + font->dx * i,
 				y);
-				
+
 		i++;
 	}
 }
@@ -136,7 +140,7 @@ void drawipaddr(uint32_t a, int linenum)
 	char buf[4];
 	int i;
 	uint32_t addr = ntohl(a);
-	
+
 	for(i=0; i<4; i++) {
 		snprintf(buf, 4, "%3d", (addr >> ((3-i)*8)) & 255);
 		drawtext(buf, &font1, 5 + i*14, 19 + linenum*9);
@@ -147,7 +151,7 @@ void drawhwaddr(unsigned char *addr)
 {
 	char buf[4];
 	int i;
-	
+
 	for(i=0; i<6; i++) {
 		snprintf(buf, 4, "%02X", addr[i]);
 		drawtext(buf, &font1, 6 + i*9, 46);
@@ -169,32 +173,34 @@ int main(int argc, char *argv[])
 
 	exec_up = exec_dflt;
 	exec_down = exec_dflt;
-	
+
 	parse_cmdline(argc, argv);
 
 	initXwindow(argc, argv);
 
 	if(mode == MODE_LED) {
-		openXwindow(argc, argv, wmifinfo_led_xpm, wmifinfo_led_bits,
-			wmifinfo_led_width, wmifinfo_led_height, BackColor,
-			LabelColor, WindGustColor, DataColor, StationTimeColor);
+		openXwindow(argc, argv, (char **) wmifinfo_led_xpm,
+			(char*) wmifinfo_led_bits, wmifinfo_led_width,
+			wmifinfo_led_height, BackColor, LabelColor,
+			WindGustColor, DataColor, StationTimeColor);
 	} else {
-		openXwindow(argc, argv, wmifinfo_lcd_xpm, wmifinfo_lcd_bits,
-			wmifinfo_lcd_width, wmifinfo_lcd_height, BackColor,
-			LabelColor, WindGustColor, DataColor, StationTimeColor);
+		openXwindow(argc, argv, (char **) wmifinfo_lcd_xpm,
+			(char*) wmifinfo_lcd_bits, wmifinfo_lcd_width,
+			wmifinfo_lcd_height, BackColor,	LabelColor,
+			WindGustColor, DataColor, StationTimeColor);
 	}
 
-	// Initialize global variables
+	/* Initialize global variables */
 
 	fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	ifc.ifc_len = sizeof(struct ifreq) * 10;
 	ifc.ifc_buf = malloc(ifc.ifc_len);
 
 	while(1) {
-	
+
 		while (XPending(display)) {
 			XNextEvent(display, &event);
-			
+
 			switch (event.type) {
 				case Expose:
 					RedrawWindow();
@@ -209,33 +215,33 @@ int main(int argc, char *argv[])
 		}
 
 		if ((d++ == 3) || (ifno != pifno) || (exec_busy != prev_exec_busy)) {
-		
+
 			d=0;
-			
+
 			copyXPMArea(64, 0, 64, 64, 0, 0);
 			getifnames();
 
 			if(ifaces>0) {
 				ifno = ifno % ifaces;
-			
+
 				getifinfo(ifname[ifno], &ifinfo);
-			
+
 				if(ifno != pifno) lastbytes = ifinfo.bytes;
-				
-				sprintf(buf, "%-7s", ifinfo.id);	
+
+				sprintf(buf, "%-7s", ifinfo.id);
 				strupper(buf);
 				drawtext(buf, &font2, 6, 4);
 
 				if(memcmp(ifinfo.hw, "\x00\x00\x00\x00\x00\x00", 6) != 0) {
 					drawhwaddr(ifinfo.hw);
 				}
-			
+
 				if(ifinfo.ip) drawipaddr(ifinfo.ip, 0);
 				if(ifinfo.nm) drawipaddr(ifinfo.nm, 1);
 				if(ifinfo.gw) drawipaddr(ifinfo.gw, 2);
 
-				// WLAN signal level
-				
+				/* WLAN signal level */
+
 #ifdef linux
 				x = ifinfo.sl/4;
 #elif defined(__OpenBSD__)
@@ -243,11 +249,11 @@ int main(int argc, char *argv[])
 #endif
 				if(x>13) x=13;
 				copyXPMArea(4, 82, x*4, 4, 6, 53);
-				
-				// LED
-				
+
+				/* LED */
+
 				x=0;
-				if(exec_busy) { 
+				if(exec_busy) {
 					x=0;
 				} else {
 					if(ifinfo.state) x += 8;
@@ -255,7 +261,7 @@ int main(int argc, char *argv[])
 				}
 				copyXPMArea(64 + x, 81, 8, 8, 50, 4);
 				lastbytes = ifinfo.bytes;
-				
+
 			}
 
 			RedrawWindow();
@@ -264,12 +270,12 @@ int main(int argc, char *argv[])
 		}
 
 #ifdef linux
-		tv.tv_sec = 0;
-		tv.tv_usec = DELAY;
-		
+		tv.tv_sec = DELAY / USEC_PER_SEC;
+		tv.tv_usec = DELAY - (tv.tv_sec * USEC_PER_SEC);
+
 		FD_ZERO(&fds);
 		FD_SET(ConnectionNumber(display), &fds);
-		
+
 		select(ConnectionNumber(display)+1, &fds, NULL, NULL, &tv);
 #elif defined(__OpenBSD__)
 		usleep(DELAY);
@@ -296,7 +302,7 @@ void print_usage()
 void print_version()
 {
 	printf("%s version %s, compile-time options: ", NAME, VERSION);
-	
+
 #ifdef ENABLE_NWN_SUPPORT
 	printf("ENABLE NWN SUPPORT ");
 #endif
@@ -307,7 +313,7 @@ void print_version()
 void parse_cmdline(int argc, char *argv[])
 {
 	int c;
-	
+
 	while((c = getopt(argc, argv, "d:i:lhu:v")) != EOF) {
 		switch(c) {
 			case 'd' :
@@ -342,7 +348,7 @@ void sigchldhandler(int a)
 void exec_cmd(char *cmd)
 {
 	int pid;
-	
+
 	signal(SIGCHLD, sigchldhandler);
 
 	if(exec_busy) return;
@@ -350,25 +356,28 @@ void exec_cmd(char *cmd)
 
 	pid=fork();
 	if(pid == 0) {
-		system(cmd);
+		if (system(cmd) == -1) {
+			fprintf(stderr, "%s failed\n", cmd);
+			exit(1);
+		}
 		exit(0);
-	} 
-	
+	}
+
 	return;
 }
 
 void ButtonPressEvent(XButtonEvent * xev)
 {
 	char buf[256];
-	
+
 	if (xev->type != ButtonPress) return;
 
 	switch (xev->button) {
 		case Button1:
-		
+
 			ifno++;
 			break;
-			
+
 		case Button2:
 		case Button3:
 
@@ -377,9 +386,9 @@ void ButtonPressEvent(XButtonEvent * xev)
 			} else {
 				sprintf(buf, exec_down,  ifinfo.id);
 			}
-			
+
 			exec_cmd(buf);
-			
+
 			break;
 	}
 }
@@ -401,7 +410,6 @@ char *strupper(char *str)
 int getifinfo(char *ifname, struct ifinfo_t *info)
 {
 	struct ifreq ifr;
-	int r;
 	struct sockaddr_in *sa;
 
 #ifdef linux
@@ -413,7 +421,7 @@ int getifinfo(char *ifname, struct ifinfo_t *info)
 	struct ifconf ifc;
 	struct ifreq *ifrp, *ifend;
 #endif
-	
+
 	char parent[16];
 	char buf[1024];
 	char *p;
@@ -426,16 +434,16 @@ int getifinfo(char *ifname, struct ifinfo_t *info)
 	if(fdev == NULL) fdev = fopen("/proc/net/dev", "r");
 #endif
 
-	
+
 	strcpy(parent, ifname);
 	p=strchr(parent, ':');
 	if(p) *p=0;
 
 	strcpy(info->id, ifname);
-	
-	strcpy(ifr.ifr_name, ifname);	
 
-	// Get status (UP/DOWN)
+	strcpy(ifr.ifr_name, ifname);
+
+	/* Get status (UP/DOWN) */
 
 	if(ioctl(fd, SIOCGIFFLAGS, &ifr) != -1) {
 		sa = (struct sockaddr_in *)&(ifr.ifr_addr);
@@ -443,9 +451,9 @@ int getifinfo(char *ifname, struct ifinfo_t *info)
 	} else {
 		info->state = 0;
 	}
-	
-	// Get mac address
-	
+
+	/* Get mac address */
+
 #ifdef linux
 	if(ioctl(fd, SIOCGIFHWADDR, &ifr) != -1) {
 		memcpy(info->hw, ifr.ifr_hwaddr.sa_data, 6);
@@ -478,40 +486,41 @@ int getifinfo(char *ifname, struct ifinfo_t *info)
 		}
 	}
 #endif
-		
-	// Get IP address	
-	
+
+	/* Get IP address */
+
 	if(ioctl(fd, SIOCGIFADDR, &ifr) != -1) {
 		sa = (struct sockaddr_in *)&(ifr.ifr_addr);
 		info->ip = sa->sin_addr.s_addr;
 	} else {
 		info->ip = 0;
 	}
-	
-	// Get netmask
-	
+
+	/* Get netmask */
+
 	if(ioctl(fd, SIOCGIFNETMASK, &ifr) != -1) {
 		sa = (struct sockaddr_in *)&(ifr.ifr_addr);
 		info->nm = sa->sin_addr.s_addr;
 	} else {
 		info->nm = 0;
 	}
-	
-	// Get default gateway if on this interface
-	
-	info->gw = 0;	
+
+	/* Get default gateway if on this interface */
+
+	info->gw = 0;
 #ifdef linux
 	if(froute != NULL) {
 		fseek(froute, 0, 0);
-		
+
 		while(fgets(buf, sizeof(buf), froute)) {
-			r = sscanf(buf, "%s %x %x", a, &b, &c);
-				
+			sscanf(buf, "%s %x %x", a, (unsigned int *) &b,
+			       (unsigned int *)  &c);
+
 			if((strcmp(a, info->id) == 0) && (b == 0)) {
 				info->gw = c;
 			}
 		}
-		
+
 	}
 #elif defined(__OpenBSD__)
 	{
@@ -562,24 +571,26 @@ int getifinfo(char *ifname, struct ifinfo_t *info)
 	}
 #endif
 
-	// Get wireless link status if wireless
-	
+	/* Get wireless link status if wireless */
+
 	info->sl = 0;
 #ifdef linux
 	if(fwireless != NULL) {
 		fseek(fwireless, 0, 0);
-		
+
 		while(fgets(buf, sizeof(buf), fwireless)) {
-			r = sscanf(buf, "%s %d %d ", a, &b, &c);
+			sscanf(buf, "%s %d %d ", a, &b, &c);
 			if(strchr(a, ':'))  *(strchr(a, ':')) = 0;
 			if(strcmp(a, parent) == 0) {
 				info->sl = c;
 			}
 		}
 	}
-	
+
 #ifdef ENABLE_NWN_SUPPORT
-	info->sl = nwn_get_link(parent);
+	if (info->sl == 0) {
+		info->sl = nwn_get_link(parent);
+	}
 #endif
 #elif defined(__OpenBSD__)
 	{
@@ -596,15 +607,15 @@ int getifinfo(char *ifname, struct ifinfo_t *info)
 		info->sl = letoh16(wreq.wi_val[0]);
 	}
 #endif
-	
-	// Get Total tx/rx bytes	
+
+	/* Get Total tx/rx bytes */
 
 #ifdef linux
 	if(fdev != NULL) {
 		fseek(fdev, 0, 0);
-		
+
 		while(fgets(buf, sizeof(buf), fdev)) {
-			r = sscanf(buf, "%s %d %d %d %d %d %d %d %d %d", a, &b, &d,&d,&d,&d,&d,&d,&d, &c);
+			sscanf(buf, "%s %d %d %d %d %d %d %d %d %d", a, &b, &d,&d,&d,&d,&d,&d,&d, &c);
 			if(strchr(a, ':'))  *(strchr(a, ':')) = 0;
 			if(strcmp(a, parent) == 0) {
 				info->bytes = b + c;
@@ -612,7 +623,7 @@ int getifinfo(char *ifname, struct ifinfo_t *info)
 		}
 	}
 #endif
-	
+
 	return(0);
 }
 
@@ -623,47 +634,53 @@ void addifname(char *name)
 
 	if(strcmp(name, "lo") == 0) return;
 	if(strncmp(name, "vlan", 4) == 0) return;
-	
+
 	for(i=0; i<ifaces; i++) {
 		if(strcmp(ifname[i], name) == 0) return;
 	}
 
 	strcpy(ifname[ifaces], name);
-	
-	if(strcasecmp(name, startif) == 0) {
-		ifno = ifaces;
-		startif[0] = 0;
-	}
-	
+
+
 	ifaces++;
-	
+
 	return;
 }
 
 
-/* 
+/*
  * get list of interfaces. First read /proc/net/dev, then do a SIOCGIFCONF
  */
- 
+
 void getifnames(void)
-{	
+{
+	char pifname[MAXIFS][16];
+	int pifaces;
+	int i,j;
+	int isnew;
 #ifdef linux
 	FILE *f;
 	char buf[128];
 	char *p1, *p2;
 	int ifcount;
-	int i;
-	
+#endif
+
+	/*
+	 * Copy list of interface names and clean the old list
+	 */
+
+	for(i=0; i<ifaces; i++) strncpy(pifname[i], ifname[i], sizeof(pifname[i]));
+	pifaces = ifaces;
 	ifaces = 0;
-	
+
+#ifdef linux
 	f = fopen("/proc/net/dev", "r");
-	
+
 	if(f == NULL) {
 		fprintf(stderr, "Can't open /proc/net/dev\n");
 		exit(1);
 	}
 
-	fgets(buf, sizeof(buf),f);	
 	while(fgets(buf, sizeof(buf), f)) {
 		p1=buf;
 		while(*p1 == ' ') p1++;
@@ -674,28 +691,27 @@ void getifnames(void)
 			addifname(p1);
 		}
 	}
-	
+
 	fclose(f);
 
 	ifc.ifc_len = sizeof(struct ifreq) * 10;
-	
+
 	if(ioctl(fd, SIOCGIFCONF, &ifc) == -1) {
 		fprintf(stderr, "SIOCGIFCONF : Can't get list of interfaces : %s\n", strerror(errno));
 		exit(1);
 	}
-	
+
 	ifcount = ifc.ifc_len / sizeof(struct ifreq);
-		
+
 	for(i=0; i<ifcount; i++) {
 		addifname(ifc.ifc_req[i].ifr_name);
 	}
-#elif defined(__OpenBSD__)
+#endif
+#ifdef __OpenBSD__
 	struct ifreq ibuf[32];
 	struct ifconf ifc;
 	struct ifreq *ifrp, *ifend;
 	int r;
-
-	ifaces = 0;
 
 	ifc.ifc_len = sizeof(ibuf);
 	ifc.ifc_buf = (caddr_t) ibuf;
@@ -719,4 +735,23 @@ void getifnames(void)
 		ifrp = (struct ifreq *) ((char *) ifrp + r);
 	}
 #endif
+
+	/*
+	 * Check if the new list contains interfaces that were not in the old list. If a new
+	 * interface is found, make it the current one to display. (-i will override)
+	 */
+
+	for(i=0; i<ifaces; i++) {
+		isnew = 1;
+		for(j=0; j<pifaces; j++) if(strcmp(ifname[i], pifname[j]) == 0) isnew = 0;
+		if(isnew) ifno = i;
+	}
+
+	for(i=0; i<ifaces; i++) {
+		if(strcasecmp(ifname[i], startif) == 0) {
+			ifno = i;
+			startif[0] = 0;
+		}
+	}
+
 }

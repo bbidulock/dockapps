@@ -22,10 +22,12 @@
 #include "config.h"
 #endif
 
+#include <sys/types.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/time.h>
 
 #include "include/common.h"
@@ -40,7 +42,6 @@ typedef struct {
 } MRegion;
 MRegion mr[16];
 
-extern Config config;
 
 /* Converts separate left and right channel volumes (each in [0, 1]) to
  * volume and balance values. (Volume is in [0, 1], balance is in [-1, 1])
@@ -107,57 +108,23 @@ int check_region(int x, int y)
     return (i - 1);
 }
 
-void config_read(void)
+/* handle writing PID file, silently ignore if we can't do it */
+void create_pid_file(void)
 {
+    char *home;
+    char *pid;
     FILE *fp;
-    char buf[512];
-    char *ptr;
 
-    if (config.file == NULL)
+    home = getenv("HOME");
+    if (home == NULL)
 	return;
 
-    fp = fopen(config.file, "r");
-    if (!fp)
-	return;
-
-    while (fgets(buf, 512, fp)) {
-	if ((ptr = strstr(buf, "mousewheel="))) {
-	    ptr += 11;
-	    config.mousewheel = atoi(ptr);
-	}
-	if ((ptr = strstr(buf, "scrolltext="))) {
-	    ptr += 11;
-	    config.scrolltext = atoi(ptr);
-	}
-	if ((ptr = strstr(buf, "osd="))) {
-	    ptr += 4;
-	    config.osd = atoi(ptr);
-	}
-	if ((ptr = strstr(buf, "osdcolor="))) {
-	    char *end;
-	    ptr += 9;
-	    end = strchr(ptr, '\n');
-	    ptr[end - ptr] = '\0';
-	    if (config.osd_color)
-		free(config.osd_color);
-	    config.osd_color = strdup(ptr);
-	}
-	if ((ptr = strstr(buf, "wheelstep="))) {
-	    ptr += 10;
-	    /* detect old style config */
-	    if (atoi(ptr) > 1)
-		config.scrollstep = (float)atoi(ptr) / 100.0;
-	    else
-		config.scrollstep = atof(ptr);
-	}
-	if ((ptr = strstr(buf, "wheelbtn1="))) {
-	    ptr += 10;
-	    config.wheel_button_up = atoi(ptr);
-	}
-	if ((ptr = strstr(buf, "wheelbtn2="))) {
-	    ptr += 10;
-	    config.wheel_button_down = atoi(ptr);
-	}
+    pid = calloc(1, strlen(home) + 10);
+    sprintf(pid, "%s/.wmix.pid", home);
+    fp = fopen(pid, "w");
+    if (fp) {
+	fprintf(fp, "%d\n", getpid());
+	fclose(fp);
     }
-    fclose(fp);
+    free(pid);
 }

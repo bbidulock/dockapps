@@ -1,4 +1,4 @@
-#(c)1999-2003 redseb 
+#(c)1999-2003 redseb
 # Adapted for wmSMPmon 2.9.x and higher: Thomas Ribbrock
 
 # Change the following two to determine installation location
@@ -35,7 +35,7 @@ $(OBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf $(EXE) 
+	rm -rf $(EXE)
 	rm -rf *.o
 	rm -rf ../wmgeneral/*.o
 

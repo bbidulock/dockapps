@@ -25,11 +25,11 @@ dist-hook-local: ChangeLog
 	chmod -R g-s .
 
 indent:
-	cd wmbiff && make indent	
-	cd wmgeneral && make indent	
+	cd wmbiff && make indent
+	cd wmgeneral && make indent
 
 # manually increment version in configure.ac, which should be enough.
-ChangeLog: Makefile configure.ac 
+ChangeLog: Makefile configure.ac
 	@if test "x$(CVS2CL)" != "x" && test -e maint/changelog.sed; then \
 		echo "Running $(CVS2CL)..."; \
 		$(CVS2CL) --stdout --utc --day-of-week -I TODO -I NEWS -I .cvsignore | \
@@ -38,7 +38,3 @@ ChangeLog: Makefile configure.ac
 		echo "Unable to build ChangeLog for distribution"; \
 		exit 0; \
 	fi
-
-sourceforgeupload: $(distdir).tar.gz
-	ncftpput upload.sourceforge.net incoming $(distdir).tar.gz
-	md5sum $(distdir).tar.gz

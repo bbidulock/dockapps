@@ -58,6 +58,8 @@ static int ipv4_sock_connect(struct in_addr *address, short port)
 		printf("socket() failed.\n");
 		return (-1);
 	};
+       if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1)
+               perror("fcntl(FD_CLOEXEC)");
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = *(u_long *) address;
@@ -77,7 +79,7 @@ static int ipv4_sock_connect(struct in_addr *address, short port)
 /* nspring/blueHal, 10 Apr 2002; added some extra error
    printing, in line with the debug-messages-to-stdout
    philosophy of the rest of the wmbiff code */
-/* 1 June 2002; incorporated IPv6 support by 
+/* 1 June 2002; incorporated IPv6 support by
    Jun-ichiro itojun Hagino <itojun@iijlab.net>, thanks! */
 
 int sock_connect(const char *hostname, int port)
@@ -109,7 +111,7 @@ int sock_connect(const char *hostname, int port)
 	if (error) {
 		static int last_error;
 		if (last_error != error) {
-			/* only report a problem if it's new.  this is an 
+			/* only report a problem if it's new.  this is an
 			   approximation that minimizes kept state. */
 			printf("%s: %s\n", hostname, gai_strerror(error));
 			last_error = error;
@@ -122,6 +124,8 @@ int sock_connect(const char *hostname, int port)
 		fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 		if (fd < 0)
 			continue;
+               if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1)
+                       perror("fcntl(FD_CLOEXEC)");
 		if (connect(fd, res->ai_addr, res->ai_addrlen) < 0) {
 			close(fd);
 			fd = -1;
@@ -135,7 +139,7 @@ int sock_connect(const char *hostname, int port)
 		if (errno != last_connecterr) {
 			/* only report a problem if it's new.
 			   EHOSTUNREACH is common when the net is down,
-			   for example; again, this is an approximation 
+			   for example; again, this is an approximation
 			   to minimize kept state. */
 			last_connecterr = errno;
 			fprintf(stderr, "Error connecting to %s:%d: %s\n",

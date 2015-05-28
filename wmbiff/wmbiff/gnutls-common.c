@@ -34,10 +34,10 @@ static const char *my_ctime(const time_t * tv)
 
 }
 
-void print_x509_info(gnutls_session session, const char* hostname)
+void print_x509_info(gnutls_session_t session, const char* hostname)
 {
-	gnutls_x509_crt crt;
-	const gnutls_datum *cert_list;
+	gnutls_x509_crt_t crt;
+	const gnutls_datum_t *cert_list;
 	unsigned int cert_list_size = 0;
 	int ret;
 	char digest[20];
@@ -80,9 +80,9 @@ void print_x509_info(gnutls_session session, const char* hostname)
 
 		if (print_cert) {
 			size_t size;
-			
+
 			size = sizeof(buffer);
-			
+
 			ret = gnutls_x509_crt_export( crt, GNUTLS_X509_FMT_PEM, buffer, &size);
 			if (ret < 0) {
 				fprintf(stderr, "Encoding error: %s\n", gnutls_strerror(ret));
@@ -92,7 +92,7 @@ void print_x509_info(gnutls_session session, const char* hostname)
 			fputs( buffer, stdout);
 			fputs( "\n", stdout);
 		}
-		
+
 		if (j==0 && hostname != NULL) { /* Check the hostname of the first certificate
 		             * if it matches the name of the host we
 		             * connected to.
@@ -107,7 +107,7 @@ void print_x509_info(gnutls_session session, const char* hostname)
 
 		if (xml) {
 #ifdef ENABLE_PKI
-			gnutls_datum xml_data;
+			gnutls_datum_t xml_data;
 
 			ret = gnutls_x509_crt_to_xml( crt, &xml_data, 0);
 			if (ret < 0) {
@@ -117,7 +117,7 @@ void print_x509_info(gnutls_session session, const char* hostname)
 					str);
 				return;
 			}
-			
+
 			printf("%s", xml_data.data);
 			gnutls_free( xml_data.data);
 #endif
@@ -161,7 +161,7 @@ void print_x509_info(gnutls_session session, const char* hostname)
 				printf(" # fingerprint: %s\n", printable);
 			}
 
-			/* Print the version of the X.509 
+			/* Print the version of the X.509
 			 * certificate.
 			 */
 			printf(" # version: #%d\n",
@@ -183,7 +183,7 @@ void print_x509_info(gnutls_session session, const char* hostname)
 			ret = gnutls_x509_crt_get_dn(crt, dn, &dn_size);
 			if (ret >= 0)
 				printf(" # Subject's DN: %s\n", dn);
-	
+
 			dn_size = sizeof(dn);
 			ret = gnutls_x509_crt_get_issuer_dn(crt, dn, &dn_size);
 			if (ret >= 0)
@@ -191,7 +191,7 @@ void print_x509_info(gnutls_session session, const char* hostname)
 		}
 
 		gnutls_x509_crt_deinit(crt);
-		
+
 		printf("\n");
 
 	}
@@ -200,7 +200,7 @@ void print_x509_info(gnutls_session session, const char* hostname)
 
 #ifdef HAVE_LIBOPENCDK
 
-void print_openpgp_info(gnutls_session session, const char* hostname)
+void print_openpgp_info(gnutls_session_t session, const char* hostname)
 {
 
 	char digest[20];
@@ -212,11 +212,11 @@ void print_openpgp_info(gnutls_session session, const char* hostname)
 	char name[256];
 	size_t name_len = sizeof(name);
 	gnutls_openpgp_key crt;
-	const gnutls_datum *cert_list;
+	const gnutls_datum_t *cert_list;
 	unsigned int cert_list_size = 0;
 	time_t expiret;
 	time_t activet;
-	
+
 	cert_list = gnutls_certificate_get_peers(session, &cert_list_size);
 
 	if (cert_list_size > 0) {
@@ -234,7 +234,7 @@ void print_openpgp_info(gnutls_session session, const char* hostname)
 
 		if (print_cert) {
 			size_t size;
-			
+
 			size = sizeof(buffer);
 
 			ret = gnutls_openpgp_key_export( crt, GNUTLS_OPENPGP_FMT_BASE64, buffer, &size);
@@ -259,7 +259,7 @@ void print_openpgp_info(gnutls_session session, const char* hostname)
 		}
 
 		if (xml) {
-			gnutls_datum xml_data;
+			gnutls_datum_t xml_data;
 
 			ret = gnutls_openpgp_key_to_xml( crt, &xml_data, 0);
 			if (ret < 0) {
@@ -269,7 +269,7 @@ void print_openpgp_info(gnutls_session session, const char* hostname)
 					str);
 				return;
 			}
-			
+
 			printf("%s", xml_data.data);
 			gnutls_free( xml_data.data);
 
@@ -286,7 +286,7 @@ void print_openpgp_info(gnutls_session session, const char* hostname)
 		else
 			printf("Never\n");
 
-		if (gnutls_openpgp_key_get_fingerprint(crt, digest, &digest_size) >= 0) 
+		if (gnutls_openpgp_key_get_fingerprint(crt, digest, &digest_size) >= 0)
 		{
 			print = printable;
 			for (i = 0; i < digest_size; i++) {
@@ -324,7 +324,7 @@ void print_openpgp_info(gnutls_session session, const char* hostname)
 			}
 
 		}
-		
+
 		gnutls_openpgp_key_deinit( crt);
 
 	}
@@ -332,7 +332,7 @@ void print_openpgp_info(gnutls_session session, const char* hostname)
 
 #endif
 
-void print_cert_vrfy(gnutls_session session)
+void print_cert_vrfy(gnutls_session_t session)
 {
 
 	unsigned int status;
@@ -369,11 +369,11 @@ void print_cert_vrfy(gnutls_session session)
 	}
 }
 
-int print_info(gnutls_session session, const char* hostname)
+int print_info(gnutls_session_t session, const char* hostname)
 {
 	const char *tmp;
-	gnutls_credentials_type cred;
-	gnutls_kx_algorithm kx;
+	gnutls_credentials_type_t cred;
+	gnutls_kx_algorithm_t kx;
 
 
 	/* print the key exchange's algorithm name
@@ -418,7 +418,7 @@ int print_info(gnutls_session session, const char* hostname)
 		print_cert_info(session, hostname);
 
 		print_cert_vrfy(session);
- 
+
 		/* Check if we have been using ephemeral Diffie Hellman.
 		 */
 		if (kx == GNUTLS_KX_DHE_RSA || kx == GNUTLS_KX_DHE_DSS) {
@@ -454,7 +454,7 @@ int print_info(gnutls_session session, const char* hostname)
 	return 0;
 }
 
-void print_cert_info(gnutls_session session, const char* hostname)
+void print_cert_info(gnutls_session_t session, const char* hostname)
 {
 
 	printf("- Certificate type: ");
@@ -512,7 +512,6 @@ void print_list(void)
 
 	printf("Compression methods:");
 	printf(" ZLIB");
-	printf(", LZO");
 	printf(", NULL\n");
 }
 
@@ -640,8 +639,6 @@ void parse_comp(char **comp, int ncomp, int *comp_priority)
 				comp_priority[j++] = GNUTLS_COMP_NULL;
 			if (strncasecmp(comp[i], "ZLI", 3) == 0)
 				comp_priority[j++] = GNUTLS_COMP_ZLIB;
-			if (strncasecmp(comp[i], "LZO", 3) == 0)
-				comp_priority[j++] = GNUTLS_COMP_LZO;
 		}
 		comp_priority[j] = 0;
 	}
@@ -659,17 +656,17 @@ void parse_comp(char **comp, int ncomp, int *comp_priority)
 #endif
 
 const char *inet_ntop(int af __attribute__((unused)), const void *src,
-                             char *dst, size_t cnt) 
+                             char *dst, size_t cnt)
 {
 char* ret;
 
 	ret = inet_ntoa( *((struct in_addr*)src));
-	
+
 	if (strlen(ret) > cnt) {
 		return NULL;
 	}
 	strcpy( dst, ret);
-	
+
 	return dst;
 }
 #endif

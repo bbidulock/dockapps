@@ -1,0 +1,166 @@
+.TH WMACPI 1 "July 13 2007"
+.SH NAME
+wmacpi \- Battery status monitor for systems supporting ACPI
+.SH NAME
+wmacpi-cli \- Query battery status for systems supporting ACPI
+.SH SYNOPSIS
+.B wmacpi
+[
+.RI -c
+value ]
+[
+.RI -d
+display ]
+[
+.RI -m
+battery no ]
+[
+.RI -s
+sample rate ]
+[
+.RI -f
+]
+[
+.RI -v
+]
+[
+.RI -n
+]
+[
+.RI -x
+]
+[
+.RI -a
+samples ]
+[
+.RI -v
+]
+[
+.RI -h
+]
+.PP
+.B wmacpi-cli
+[
+.RI -a
+samples ]
+[
+.RI -V
+]
+[
+.RI -v
+]
+]
+.RI -b
+]
+[
+.RI -r
+]
+[
+.RI -h
+]
+.SH DESCRIPTION
+This manual page documents briefly the
+.B wmacpi
+command.
+.PP
+.B wmacpi
+is a program that displays the current battery status in a WindowMaker
+dock app, on systems that support Intel's Advanced Configuration and
+Power Interface specification (ACPI).
+.PP
+The program monitors a battery, displaying its current percentage
+charge via a bar and a numeric value. It also displays the current
+power status for the system, the time remaining (calculated based on
+the remaining battery capacity and the current rate of power usage),
+and a scrolling message with some hopefully useful information.
+.PP
+Clicking on the window cycles through the batteries that the ACPI
+system knows about.
+.PP
+.B wmacpi-cli
+queries the battery status from the command line. It prints the power
+status, the percentage remaining for each battery found, and the time
+remaining if the system is on battery, or the time remaining for each
+battery to reach full charge if the batteries are charging.
+.SH OPTIONS
+.B wmacpi
+.TP
+.B \-c, --critical=percentage
+Set critical low alarm at <percentage>% (default: 10%).
+.TP
+.B \-d, --display=display
+Set the X display to open the window on.
+.TP
+.B \-m, --battery=battery number
+Set the battery to monitor initially.
+.TP
+.B \-s, --sample-rate=sample rate
+Set the rate at which to sample the ACPI data, in number of times per
+minute. Minimum is 1, ie once a minute, default is 20, maximum is 600.
+.TP
+.B \-n, --no-blink
+Disable blinking power glyph when charging. Note that it still blinks when
+the battery reports its capacity state as critical.
+.TP
+.B \-f, --force-capacity-mode
+Force the use of capacity mode for calculating time remaining. By defalt
+.B wmacpi
+will use the reported values of remaining capacity and present rate to
+calculate the time remaining on battery. This flag will force the use
+of the remaining capacity and time samples to calculate the present
+rate of drain, and from there the time remaining. Note that this mode
+of calculation generally underreports the time remaining. This mode
+works around certain buggy ACPI BIOSes that fail to report the current
+rate.
+.TP
+.B \-x, --cmdline
+Run wmacpi in command line mode - this operates identically to
+.B wmacpi-cli\&.
+.TP
+.B \-a, --samples=samples
+Average the time remaining over num samples. This greatly improves the
+accuracy of the reported time remaining.
+.TP
+.B \-V, --verbosity=num
+Increase the verbosity of the program. Setting this to 1 will print extra
+error information; 2 will produce informational output; 3 will produce
+copious debugging output.
+.TP
+.B \-v, --version
+Print the version information.
+.TP
+.B \-r, --no-scroll
+Disable scrolling message.
+.TP
+.B \-h, --help
+Display help.
+.TP
+.B wmacpi-cli
+.TP
+.B \-a num
+Average the time remaining over num samples. This greatly improves the
+accuracy of the reported time remaining.
+.TP
+.B \-V
+Increase the verbosity of the program. If repeated, the result is the
+same as setting
+.B \--verbosity
+for
+.B wmacpi
+to the number of repetitions.
+.TP
+.B \-v
+Print the version information.
+.TP
+.B \-h
+Display help.
+.SH AUTHOR
+.B wmacpi
+was originally written by Tim Copperfield <timecop@japan.co.jp>, then
+completely rewritten after 1.34 by Simon Fowler <simon@himi.org>.
+.PP
+This manual page was originally written by Simon Richter
+<sjr@debian.org> for the Debian GNU/Linux system, and then updated by
+Simon Fowler.
+.br
+Last modification by Simon Fowler <simon@himi.org>, 2007-07-13.

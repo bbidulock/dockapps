@@ -1,0 +1,195 @@
+2014-12-11  Doug Torrance <dtorrance@monmouthcollege.edu>
+
+	* Bump to version 1.0.15.
+
+	* INSTALL, README, configure.ac:  Update documentation.
+	In particular, document installation changes after switch to
+	autotools and change maintainer to Window Maker Developers.
+
+	* Makefile.am, configure.ac, wmclock.1.in, wmclock.man.in:
+	Update manpage.
+
+	Changes include:
+	- Rename to wmclock.1.
+	- Use @prefix@ instead of /usr for the location of the language xpm
+	files.
+	- Hardcode date instead of picking it up from a variable in the
+	Makefile.
+
+	* Makefile.am, configure.ac, month.xpm,	weekday.xpm:
+	Choose language with ./configure.
+
+	This is a feature that was present in the pre-autotools configure
+	script.  Note a syntax change:
+	./configure --lang foo
+	is now
+	./configure --with-lang=foo
+	Also remove the .xpm files in the root directory, as they are
+	created during configuration.
+
+2014-12-10  Doug Torrance <dtorrance@monmouthcollege.edu>
+
+	* Imakefile, Makefile.am, configure, configure.ac:  Switch build
+	system from deprecated imake to autotools.
+
+2014-12-10  Doug Torrance <dtorrance@monmouthcollege.edu>
+
+	* ChangeLog, INSTALL, Imakefile, README, configure, dynlist.c,
+	dynlist.h, wmclock.c, wmclock.man.in:  Remove trailing whitespace.
+
+	* wmclock.spec.in:  Remove wmclock.spec.in; not	needed upstream.
+
+	* wmclock.man:  Remove generated file wmclock.man.
+
+	* wmclock.c, wmclock.man.in:  Add -interval option.
+
+	From the Debian patch:
+
+	http://sources.debian.net/src/1.0.14-6/debian/patches/add_interval_option.patch/
+	For more information, see:
+	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=228986
+
+	* wmclock.c:  Show correct year when -year is given.
+
+	From the Debian patch:
+
+	http://sources.debian.net/src/1.0.14-6/debian/patches/correct_year.patch/
+	For more information, see:
+	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=723887
+
+	* wmclock.c:  Fix display when both -12 and -year are given.
+
+	Patch by Vino Fernando Crescini <jcrescin@cit.uws.edu.au>:
+	http://sources.debian.net/src/1.0.14-6/debian/patches/fix_12_year_display.patch/
+	For more information, see:
+	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=228985
+
+	* wmclock.man.in:  Add section to manpage about	usage of translated
+	XPM files.
+
+	Adapted from the Debian patch by Sandro Tosi <matrixhasu@gmail.com>:
+	http://sources.debian.net/src/1.0.14-6/debian/patches/manpage_xpm_notes.patch/
+
+	* wmclock.man.in:  Fix first line of manpage.
+
+	Patch by Sandro Tosi <matrixhasu@gmail.com> from Debian package:
+	http://sources.debian.net/src/1.0.14-6/debian/patches/manpage_fixes.patch/
+
+	*  Add version 1.0.14 to dockapps repository.
+
+	Obtained from: http://www.bluestop.org/wmclock-1.0.14.tar.gz
+
+2010-12-22 11:53  brucec
+	* Updated documentation to show new maintainer.
+	* Simplified Imakefile.
+
+2010-12-03 20:28  brucec
+	* Imakefile: Bumped version to 1.0.13, add warning flags.
+
+	* INSTALL: Updated compiler and flags example.
+
+	* wmclock.c, weekday.xpm: Integrated Debian nopolling patch and
+	FreeBSD's weekday and year patches. Added function prototypes.
+
+	* wmclock.spec.in: Bumped version to 1.0.13, changed ExecPrefix to
+	/usr/local since /usr/X11R6 is obsolete.
+
+	* lang.polish: Added Polish language files, contributed by
+	oyd11 at softhome.net
+
+	* lang.croatian: Added Croatian language files, contributed by Josip
+	Deanovic <djosip at croadria.com>
+
+2000-04-13 07:49  jmknoble
+
+	* wmclock.spec.in: Add ChangeLog to %%doc directory.
+
+	* Imakefile: Bump version to 1.0.12.2.	Release.
+
+	* Imakefile: Generate changelog from CVS comments with 'make
+	changelog'.  Add generated changelog to distribution tarball.
+
+2000-03-08 07:59  jmknoble
+
+	* Imakefile: `tar' target was copying CVS directories.
+	Restructured it a bit to avoid that.
+
+	* Imakefile: `distclean' target could prove troublesome by
+	destroying irreproducible work.
+
+	* wmclock.spec.in: Oops.  Missed an obsolete %%{ReleaseNum} macro.
+
+2000-03-08 07:35  jmknoble
+
+	* Imakefile, wmclock.spec.in: Added template from which to generate
+	spec file (wmclock.spec.in).  Added targets in Imakefile to handle
+	generating the spec file.  Revised `tar' target to rebuild on
+	sourcefile change.  Added distclean target.  Removed symlinks from
+	tarball.  Updated version to 1.0.12.1.
+
+	* .cvsignore: Added .cvsignore file for convenience of the
+	developer.
+
+	* Makefile: Makefile is automagically generated; it shouldn't be
+	stored in CVS.
+
+	* wmclock.c, xpm/mask.xbm: Compiling with gcc -Wall -ansi -pedantic
+	revealed that the mask bitmap should be declared as unsigned char.
+	XCreateBitmapFromData() expects char *, though, so we cast the mask
+	bitmap data explicitly.
+
+	* dynlist.c, dynlist.h: Fixed possible memory leak.
+
+2000-03-08 06:56  jmknoble
+
+	* COPYING, INSTALL, Imakefile, Makefile, README, configure,
+	dynlist.c, dynlist.h, wmclock.c, wmclock.man.in,
+	asclock-orig/INSTALL, asclock-orig/Imakefile, asclock-orig/README,
+	asclock-orig/asclock.c, asclock-orig/asclock.man,
+	asclock-orig/configure, asclock-orig/mask.xpm,
+	lang.breton/month.xpm, lang.breton/weekday.xpm,
+	lang.czech/month.xpm, lang.czech/weekday.xpm,
+	lang.danish/month.xpm, lang.danish/weekday.xpm,
+	lang.dutch/month.xpm, lang.dutch/weekday.xpm,
+	lang.english/month.xpm, lang.english/weekday.xpm,
+	lang.french/month.xpm, lang.french/weekday.xpm,
+	lang.french2/month.xpm, lang.french2/weekday.xpm,
+	lang.german/month.xpm, lang.german/weekday.xpm,
+	lang.hungarian/month.xpm, lang.hungarian/weekday.xpm,
+	lang.indonesian/month.xpm, lang.indonesian/weekday.xpm,
+	lang.italian/month.xpm, lang.italian/weekday.xpm,
+	lang.norwegian/month.xpm, lang.norwegian/weekday.xpm,
+	lang.portuguese/month.xpm, lang.portuguese/weekday.xpm,
+	lang.russian/month.xpm, lang.russian/weekday.xpm,
+	lang.slovene/month.xpm, lang.slovene/weekday.xpm,
+	lang.spanish/month.xpm, lang.spanish/weekday.xpm,
+	lang.swedish/month.xpm, lang.swedish/weekday.xpm,
+	lang.ukrainian/month.xpm, lang.ukrainian/weekday.xpm, xpm/date.xpm,
+	xpm/led.xpm, xpm/mask.xbm, xpm/mask.xpm: Begin CVS revision control
+
+	* COPYING, INSTALL, Imakefile, Makefile, README, configure,
+	dynlist.c, dynlist.h, wmclock.c, wmclock.man.in,
+	asclock-orig/INSTALL, asclock-orig/Imakefile, asclock-orig/README,
+	asclock-orig/asclock.c, asclock-orig/asclock.man,
+	asclock-orig/configure, asclock-orig/mask.xpm,
+	lang.breton/month.xpm, lang.breton/weekday.xpm,
+	lang.czech/month.xpm, lang.czech/weekday.xpm,
+	lang.danish/month.xpm, lang.danish/weekday.xpm,
+	lang.dutch/month.xpm, lang.dutch/weekday.xpm,
+	lang.english/month.xpm, lang.english/weekday.xpm,
+	lang.french/month.xpm, lang.french/weekday.xpm,
+	lang.french2/month.xpm, lang.french2/weekday.xpm,
+	lang.german/month.xpm, lang.german/weekday.xpm,
+	lang.hungarian/month.xpm, lang.hungarian/weekday.xpm,
+	lang.indonesian/month.xpm, lang.indonesian/weekday.xpm,
+	lang.italian/month.xpm, lang.italian/weekday.xpm,
+	lang.norwegian/month.xpm, lang.norwegian/weekday.xpm,
+	lang.portuguese/month.xpm, lang.portuguese/weekday.xpm,
+	lang.russian/month.xpm, lang.russian/weekday.xpm,
+	lang.slovene/month.xpm, lang.slovene/weekday.xpm,
+	lang.spanish/month.xpm, lang.spanish/weekday.xpm,
+	lang.swedish/month.xpm, lang.swedish/weekday.xpm,
+	lang.ukrainian/month.xpm, lang.ukrainian/weekday.xpm, xpm/date.xpm,
+	xpm/led.xpm, xpm/mask.xbm, xpm/mask.xpm: branches:  1.1.1; Initial
+	revision
+

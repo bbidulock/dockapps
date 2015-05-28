@@ -1,0 +1,172 @@
+.TH wmix 1x "3.2" "Fredrik Steen"
+.SH NAME
+wmix \- Dockapp mixer for OSS or ALSA
+.
+.SH SYNOPSIS
+.B wmix
+.RI [ options... ]
+.br
+.B wmix
+.I \-h
+.
+.SH DESCRIPTION
+Docked application to control audio mixer for OSS or ALSA.
+Allows toggling record source,
+muting individual channels, adjusting volume and balance, all in a
+compact dockapp size, with TV\-like on\-screen\-display for volume levels.
+.LP
+Supports mouse wheel to adjust current channel's volume,
+supports also the volume control keys on \(lqmultimedia\(rq keyboards
+and can be controlled remotely with unix signals
+.IR SIGUSR1 / SIGUSR2
+to raise/lower the volume.
+Keeps a simple configuration file for user\-defined settings.
+.
+.SH OPTIONS
+.TP
+\fB\-d\fR <\fIdisplay\fP>
+Connect to remote X display
+.TP
+\fB\-e\fR <\fIname\fP>
+Exclude channel from control (see
+.SM
+.B "CHANNEL NAMES"
+below)
+.TP
+\fB\-f\fR <\fIfile\fP>
+Use config file instead of
+.I ~/.wmixrc
+.TP
+\fB\-h\fR
+Display list of command\-line options
+.TP
+\fB\-k\fR
+Disable grabbing the audio volume control keys on keyboard (see
+.SM
+.B BUGS
+below)
+.TP
+\fB\-m\fR <\fIdevice\fP>
+Use specified mixer device instead of
+.I /dev/mixer
+.TP
+\fB\-v\fR
+Verbose start, report detected channels
+.
+.SH CONFIGURATION FILE
+If readable, the file \fI~/.wmixrc\fP (or the file specified through \fB\-f\fR option)
+is read on startup.
+It may contains one configuration command per line:
+.TP
+device=<\fImixer_device\fP>
+defines the device file to use instead of \fB/dev/mixer\fP
+.TP
+exclude=<\fIchannel_name\fP>
+exclude the specified channel from control, you can use it as many times as needed (see
+.SM
+.B "CHANNEL NAMES"
+below)
+.TP
+mousewheel=<\fI0\fP|\fI1\fP>
+when set to \fI0\fP, disable the volume control through mouse wheel (default=\fI1\fP)
+.TP
+osd=<\fI0\fP|\fI1\fP>
+when set to \fI0\fP, disable display of the volume in an OSD like fashion (default=\fI1\fP)
+.TP
+osdcolor=<\fIcolor\fP>
+specify the color to use for OSD volume display.
+It can be the name of a color (see \fI/usr/share/X11/rgb.txt\fP)
+or an RGB specification (as \fBrgb:\fP<\fIred\fP>/<\fIgreen\fP>/<\fIblue\fP>
+with hexadecimal numbers) as expected by X11 (default=\fIgreen\fP)
+.TP
+scrolltext=<\fI0\fP|\fI1\fP>
+when set to \fI0\fP, disable text scrolling to display the name of current selected
+channel, use static short name instead (default=\fI1\fP)
+.TP
+wheelbtn1=<\fIbutton\fP>
+.TQ
+wheelbtn2=<\fIbutton\fP>
+defines the buttons events associated in X11 to the mouse wheel,
+with \fIbtn1\fP for up and \fIbtn2\fP for down
+(default: btn1=\fI4\fP and btn2=\fI5\fP)
+.TP
+wheelstep=<\fIpercentage\fP>
+sets the volume change step when using the mouse wheel,
+specified as a percentage of the total volume range (i.e.: 1\~<\~\fIvalue\fP\~<\~100,
+default=\fI3\fP)
+.br
+For compatibility, values between 0.0 and 1.0 will be considered as a raw percentage
+.LP
+You may include comments in the file using the character # in which case
+everything will be ignored from the character to the end of the line.
+.
+.SH CHANNEL NAMES
+The names for the different channels are provided by ALSA/OSS as short names, for which
+.B wmix
+provides a long name match for readability.
+The default behavior is to scroll the long name of the current channel
+in the text line of the dockapp, but if you disable the scroll text
+then the short name will be displayed instead.
+.LP
+If you want to exclude a channel from the list of channels controlled by
+the dockapp you have to use the short name.
+You can get the list of all the channels available in your sound card with
+.B wmix -v
+and the short name will be between parentheses, here is an example:
+.LP
+.EX
+Supported channels:
+  1: Master volume      (Vol  )
+  2: PC Speaker         (Spkr )
+  3: PCM Wave 2 volume  (Pcm2 )
+  4: Input gain         (IGain)
+  5: Phone output       (PhoneOut)
+.EE
+.
+.SH FILES
+.TP
+.I ~/.wmixrc
+User configuration file (change with option
+.BR \-f )
+.TP
+.I ~/.wmix.pid
+Contains process id of wmix, in case you'd need it for
+.IR SIGUSR1 / SIGUSR2
+volume control
+.TP
+.I /dev/mixer
+Device used for controlling volume (change with option
+.BR \-m " or with command " device " in the config file)"
+.TP
+.I /usr/share/doc/wmix/README
+More information on the user interface
+.
+.SH BUGS
+The \fImute\fP functionality is implemented by setting the volume to 0
+and remembering the previous volume to restore it when unmuting.
+While this is perfectly ok, you may encounter strange looking behavior
+if you have other application controlling the volume, and possibly
+implementing mute in similar ways, because there is no way to know
+that a channel has been muted.
+.LP
+The X server allows only one application at a time to place a grab on a key,
+so if another application already claimed the volume control keys then \fBwmix\fP
+will warn you about it and continue without the functionality.
+If on the other hand you encounter problem with applications that do
+not work because they could not grab these keys (a typical symptom is
+an X Error of type \fIBadAccess\fP with major opcode 33 \fIX_GrabKey\fP),
+you can ask \fBwmix\fP to not grab them using the command line option
+\fB-k\fP.
+.LP
+If you modify the configuration file, do not expect \fBwmix\fP to reload
+it automatically, this is considered a too costly feature for such a
+small application.
+.
+.SH AUTHORS
+This man page was written by Fredrik Steen <stone@debian.org> for the Debian
+distribution.
+It was expanded by Christophe CURIS for the Window Maker Dev Team.
+.PP
+wmix was written by Tim, timecop <timecop@japan.co.jp>,
+with some code by Daniel Richard G. <skunk@mit.edu>
+and some addition by Christophe CURIS.

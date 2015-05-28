@@ -1,0 +1,7 @@
+Installation:
+autoreconf -i
+./configure
+(or ./configure --with-xpm=foo, where foo is your preferred .xpm)
+make
+make install (as root)
+Edit sample.wmfsmrc and copy it to ~/.wmfsmrc

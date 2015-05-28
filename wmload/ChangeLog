@@ -1,0 +1,129 @@
+VERSION: 0.9.6
+RELEASE DATE: 15 April 2015
+	-Clarify copyright information.
+	 Add copyright header to wmload.c and COPYING file, obtained from
+	 https://www.gnu.org/licenses/gpl-2.0.txt.
+
+VERSION: 0.9.5
+RELEASE DATE: 7 April 2015
+	-Now maintained by the Window Maker Developers Team
+	-Replace deprecated Imakefile with Makefile.  Update INSTALL to reflect
+	 changes.
+	-Add missing headers.  Fixes "incompatible implicit declaration of
+	 built-in function" warnings.
+	-Add missing format arguments to fprintf().  Fixes "format not a string
+	 literal and no format arguments [-Wformat-security]" warnings.
+	-Add more missing headers. Fixes -Wimplicit-function-declaration
+	 warnings.
+	-Pass XCreateBitmapFromData a pointer to char as expected.  Previously,
+	 a pointer to an unsigned char was passed, causing a "pointer targets
+	 differ in signedness [-Wpointer-sign]" warning.
+	-Add manpage from Debian.  Slightly modified from [1].  Also modify
+	 Makefile to install manpage.
+	-Split ChangeLog off from README.  Also remove redundant INSTALL
+	 section.
+	-Incorporate changes from asload-0.9.3.  Obtained from [2].
+	-Incorporate changes from asload-0.9.4.  Obtained from [3].
+	-Remove trailing whitespace.
+	-Include sys/wait.h.  Needed to fix "implicit declaration of function
+	 ‘waitpid’" warning introduced after merging asload-0.9.4.
+	-Remove ">/dev/console" from default command to execute on click.
+	 Otherwise, user may receive "permission denied" errors.
+	-Check if Execute string is empty by testing first character.  Fixes
+	 "the address of ‘Execute’ will always evaluate as ‘true’ [-Waddress]"
+	 warning.
+	-Cast data from client message event to Atom for comparison.  Fixes
+	 -Wsign-compare compiler warning.
+	-Replace deprecated usleep with nanosleep.
+
+	[1] http://manned.org/wmload/a214d0b5/src
+	[2] http://tigr.net/afterstep/download/asload/asload-0.9.3.tar.gz
+	[3] http://tigr.net/afterstep/download/asload/asload-0.9.4.tar.gz
+
+VERSION: 0.9.4
+RELEASE DATE: 09 March 2000 by albert@tigr.net
+
+	Fixed the security bug. The program now forks
+	and the child drops privileges before executing
+	an external command.
+
+VERSION: 0.9.3
+RELEASE DATE: 03 March 2000 (sashav@sprintmail.com)
+       -added range check for values. It seems that on 2.3 kernels
+        time can go backwards :)
+       -Destroying Icon window prior to main window to avoid shutdown
+        time errors
+
+VERSION: 0.9.2
+RELEASE DATE: 17 July 1997
+
+	-Minor cosmetic changes.
+	 The graph zone is now perfectly square, 54x54.
+	 <I didn't like it's odd width! (;-)>
+
+	-All values dealing with pixmap size have been
+	 adjusted to accomodate the new `look'.
+
+VERSION: 0.9.1
+RELEASE DATE: 8 July 1997
+
+	-Uses correct ordering of PROC data.
+
+	-Increases the differentiation between tones,
+	 just a smidgion.
+
+	-Catches a "Once In A Blue Moon" condition.
+	   Under various circumstances rounding error
+	   results in a pixel count of 55 or 53.
+	   To prevent the 55 count from writing one
+	   pixel into the edge of the frame, wmload
+	   now catches these occurrences and corrects
+	   for them.
+
+VERSION: 0.9.0
+RELEASE DATE: 6 July 1997
+
+	-Fixed the grayscale problem that occurred
+	 whenever the "-shape" argument was used.
+
+	-Implemented the "-led" argument...
+	 ...the last release had the argument,
+	 however it wasn't implemented...
+	 ...ie: it did nothing.
+	 Called without the "-led" argument, wmload
+	 uses it's default color "LightSeaGreen"
+	 [which is the same as the asclock readout].
+	 Called with the argument, it uses the
+	 named color. If the default color is
+	 unavailable, or the named color is invalid,
+	 wmload simply uses the 3 green tones
+	 found in the "back.xpm" pixmap.
+
+	-Added a "-ver" argument...
+	 When used, it prints the current version
+	 on stdout. If it is called alone with no
+	 other arguments, wmload exits after
+	 printing its' version. Called with other
+	 arguments... wmload prints its' version
+	 and continues as normal.
+
+	-Trapped bad arguments that don't start
+	 with "-".
+
+	-Cleaned up the code a bit.
+
+	-Removed unnecessary files from the
+	 distribution. <kept README's though>
+
+
+VERSION: ?
+RELEASE DATE: ?
+	-adapted from asload by Nic Bernstein
+	 added withdrawn option, added WM hints.
+	 changed trace color
+
+
+VERSION: asload 0.1
+RELEASE DATE: 30th November 1996
+	- by Beat Christen, bchriste@iiic.ethz.ch
+	- First Version for Linux /proc

@@ -1,9 +1,9 @@
-/* dock.c- built-in Dock module for WindowMaker
- * 
- *  WindowMaker window manager
- * 
+/*  wmgeneral miscellaneous functions
+ *
+ *  from dock.c - built-in Dock module for WindowMaker window manager
+ *
  *  Copyright (c) 1997 Alfredo K. Kojima
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -16,11 +16,14 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+ *  USA.
  */
 
+#define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "list.h"
 #include "misc.h"
 
@@ -28,7 +31,7 @@
  *----------------------------------------------------------------------
  * parse_command--
  * 	Divides a command line into a argv/argc pair.
- *---------------------------------------------------------------------- 
+ *----------------------------------------------------------------------
  */
 #define PRC_ALPHA	0
 #define PRC_BLANK	1
@@ -63,12 +66,16 @@ next_token(char *word, char **next)
     int state, ctype;
 
     t = ret = malloc(strlen(word)+1);
+    if (ret == NULL) {
+	    fprintf(stderr, "Insufficient memory.\n");
+	    exit(EXIT_FAILURE);
+    }
     ptr = word;
-    
+
     state = 0;
     *t = 0;
     while (1) {
-	if (*ptr==0) 
+	if (*ptr==0)
 	    ctype = PRC_EOS;
 	else if (*ptr=='\\')
 	    ctype = PRC_ESCAPE;
@@ -98,12 +105,12 @@ next_token(char *word, char **next)
 	t = strdup(ret);
 
     free(ret);
-    
+
     if (ctype==PRC_EOS)
 	*next = NULL;
     else
 	*next = ptr;
-    
+
     return t;
 }
 
@@ -118,7 +125,7 @@ parse_command(char *command, char ***argv, int *argc)
     line = command;
     do {
 	token = next_token(line, &line);
-	if (token) {	    
+	if (token) {
 	    list = list_cons(token, list);
 	}
     } while (token!=NULL && line!=NULL);
@@ -141,15 +148,15 @@ execCommand(char *command)
     int argc;
 
     parse_command(command, &argv, &argc);
-    
+
     if (argv==NULL) {
         return 0;
     }
-    
+
     if ((pid=fork())==0) {
         char **args;
         int i;
-        
+
         args = malloc(sizeof(char*)*(argc+1));
         if (!args)
           exit(10);
@@ -160,5 +167,6 @@ execCommand(char *command)
         execvp(argv[0], args);
         exit(10);
     }
+    free(argv);
     return pid;
 }

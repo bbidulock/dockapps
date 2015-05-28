@@ -9,18 +9,21 @@ ENABLE_NWN_SUPPORT=n
 # Nothing to configure under here
 
 NAME=wmifinfo
-VERSION=0.06
-DESTDIR=
-PREFIX=/usr
+VERSION=0.10
 
 CC = gcc
 LD = gcc
-COPTS = -Wall -O2 -D'VERSION="$(VERSION)"' -D'NAME="$(NAME)"'
-LDOPTS = -lX11 -L/usr/X11R6/lib -lXpm -lXext
-BINDIR = /usr/local/bin
+INSTALL = install
+CFLAGS = -Wall -O2
+COPTS = -D'VERSION="$(VERSION)"' -D'NAME="$(NAME)"'
+LDOPTS = -lX11 -lXpm -lXext
+DESTDIR =
+PREFIX = /usr
+BINDIR = $(PREFIX)/bin
+MANDIR = $(PREFIX)/share/man
 
 BIN =	wmifinfo
-FILES = wmifinfo.o xutils.o 
+FILES = wmifinfo.o xutils.o
 
 ifeq ("$(ENABLE_NWN_SUPPORT)", "y")
 FILES += nwn.o
@@ -29,17 +32,21 @@ endif
 
 all:	$(BIN)
 
-.c.o: 	
-	$(CC) $(COPTS) -c $< 
+.c.o:
+	$(CC) $(COPTS) $(CPPFLAGS) $(CFLAGS) -c $<
 
 $(BIN):	$(FILES)
-	$(LD) -o $@ $(FILES) $(LDOPTS)
+	$(LD) $(LDFLAGS) -o $@ $(FILES) $(LDOPTS)
 
 clean:
-	rm -f *.o $(BIN) core
+	rm -f *.o $(BIN) core ./.#* *.orig *.rej
 
 install:
-	install -Dm755 $(BIN) $(DESTDIR)$(PREFIX)/bin/$(BIN)
+	$(INSTALL) -Dm755 $(BIN) $(DESTDIR)$(BINDIR)/$(BIN)
+	$(INSTALL) -Dm644 wmifinfo.1 $(DESTDIR)$(MANDIR)/man1/wmifinfo.1
 
 dist:	clean
-	cd .. && tar -zcvf dist/wmifinfo-$(VERSION).tgz wmifinfo-$(VERSION)/
+	rm -rf /tmp/wmifinfo-$(VERSION)
+	cd .. && cp -a wmifinfo /tmp/wmifinfo-$(VERSION)
+	cd /tmp && tar --exclude CVS -zcvf wmifinfo-$(VERSION).tgz wmifinfo-$(VERSION)/
+

@@ -37,132 +37,54 @@
 #include "include/mixer.h"
 #include "include/misc.h"
 #include "include/ui_x.h"
+#include "include/mmkeys.h"
+#include "include/config.h"
 
-#define VERSION "3.0"
 
 static Display *display;
-static char *display_name = NULL;
-static char *mixer_device = NULL;
 static bool button_pressed = false;
 static bool slider_pressed = false;
 static double prev_button_press_time = 0.0;
 
 static float display_height;
 static float display_width;
-Config config;
 static int mouse_drag_home_x;
 static int mouse_drag_home_y;
 static int idle_loop;
-static bool verbose;
-static char *exclude[SOUND_MIXER_NRDEVICES];
 
 /* local stuff */
-static void parse_cli_options(int argc, char **argv);
 static void signal_catch(int sig);
 static void button_press_event(XButtonEvent *event);
 static void button_release_event(XButtonEvent *event);
+static int  key_press_event(XKeyEvent *event);
 static void motion_event(XMotionEvent *event);
 
-#define HELP_TEXT \
-	"WMixer " VERSION " by timecop@japan.co.jp + skunk@mit.edu\n" \
-	"usage:\n" \
-	"  -d <dsp>  connect to remote X display\n" \
-	"  -f <file> parse this config [~/.wmixrc]\n" \
-	"  -m <dev>  mixer device [/dev/mixer]\n" \
-	"  -h        print this help\n" \
-	"  -v        verbose -> id, long name, name\n" \
-	"  -e <name> exclude channel, can be used many times\n" \
-
-static void parse_cli_options(int argc, char **argv)
-{
-    int opt;
-    int count_exclude = 0 ;
-    verbose = false ;
-
-    while ((opt = getopt(argc, argv, "d:f:hm:ve:")) != EOF) {
-	switch (opt) {
-	    case 'd':
-		if (optarg != NULL)
-		    display_name = strdup(optarg);
-		break;
-	    case 'm':
-		if (optarg != NULL)
-		    mixer_device = strdup(optarg);
-		break;
-	    case 'f':
-		if (optarg != NULL)
-		    if (config.file != NULL)
-			free(config.file);
-		    config.file = strdup(optarg);
-		break;
-	    case 'h':
-		fputs(HELP_TEXT, stdout);
-		exit(0);
-		break;
-   	    case 'v':
-	        verbose = true;
-		break;
-   	    case 'e':
-		if (count_exclude < SOUND_MIXER_NRDEVICES) {
-		    exclude[count_exclude] = strdup(optarg);
-		    /* printf("exclude : %s\n", exclude[count_exclude]); */
-		    count_exclude++;
-		} else
-		    fprintf(stderr, "Warning: You can't exclude this many channels\n");
-		break;
-	    default:
-		break;
-	}
-    }
-    exclude[count_exclude] = NULL ;
-}
 
 int main(int argc, char **argv)
 {
     XEvent event;
-    char *home;
-    char *pid;
-    FILE *fp;
 
-    memset(&config, 0, sizeof(config));
-
-    /* we can theoretically live without a config file */
-    home = getenv("HOME");
-    if (home) {
-	config.file = calloc(1, strlen(home) + 9);
-	sprintf(config.file, "%s/.wmixrc", home);
-    }
-
-    /* handle writing PID file, silently ignore if we can't do it */
-    pid = calloc(1, strlen(home) + 10);
-    sprintf(pid, "%s/.wmix.pid", home);
-    fp = fopen(pid, "w");
-    if (fp) {
-	fprintf(fp, "%d\n", getpid());
-	fclose(fp);
-    }
-    free(pid);
-
-    /* default values */
-    config.mousewheel = 1;
-    config.scrolltext = 1;
-    config.wheel_button_up = 4;
-    config.wheel_button_down = 5;
-    config.scrollstep = 0.03;
-    config.osd = 1;
-    config.osd_color = strdup("green");
-
+    config_init();
     parse_cli_options(argc, argv);
     config_read();
 
-    if (mixer_device == NULL)
-	mixer_device = "/dev/mixer";
-
-    mixer_init(mixer_device, verbose, (const char **)exclude);
+    mixer_init(config.mixer_device, config.verbose, (const char **)config.exclude_channel);
     mixer_set_channel(0);
 
-    if ((display = XOpenDisplay(display_name)) == NULL) {
-	fprintf(stderr, "Unable to open display \"%s\"\n", display_name);
+    display = XOpenDisplay(config.display_name);
+    if (display == NULL) {
+	const char *name;
+
+	if (config.display_name) {
+	    name = config.display_name;
+	} else {
+	    name = getenv("DISPLAY");
+	    if (name == NULL) {
+		fprintf(stderr, "wmix:error: Unable to open display, variable $DISPLAY not set\n");
+		return EXIT_FAILURE;
+	    }
+	}
+	fprintf(stderr, "wmix:error: Unable to open display \"%s\"\n", name);
 	return EXIT_FAILURE;
     }
     display_width = (float)DisplayWidth(display, DefaultScreen(display)) / 4.0;
@@ -171,7 +93,13 @@ int main(int argc, char **argv)
     dockapp_init(display);
     new_window("wmix", 64, 64);
     new_osd(DisplayWidth(display, DefaultScreen(display)) - 200, 60);
-    blit_string("wmix 3.0");
+
+    if (config.mmkeys)
+	    mmkey_install(display);
+
+    config_release();
+
+    blit_string("wmix " VERSION);
     scroll_text(3, 4, 57, true);
     ui_update();
 
@@ -185,6 +113,7 @@ int main(int argc, char **argv)
     add_region(10, 3, 4, 56, 7);	/* re-scroll current channel name */
 
     /* setup up/down signal handler */
+    create_pid_file();
     signal(SIGUSR1, (void *) signal_catch);
     signal(SIGUSR2, (void *) signal_catch);
 
@@ -192,6 +121,10 @@ int main(int argc, char **argv)
 	if (button_pressed || slider_pressed || (XPending(display) > 0)) {
 	    XNextEvent(display, &event);
 	    switch (event.type) {
+		case KeyPress:
+		    if (key_press_event(&event.xkey))
+			idle_loop = 0;
+		    break;
 		case Expose:
 		    redraw_window();
 		    break;
@@ -352,6 +285,36 @@ static void button_press_event(XButtonEvent *event)
     }
 }
 
+static int key_press_event(XKeyEvent *event)
+{
+	if (event->keycode == mmkeys.raise_volume) {
+		mixer_set_volume_rel(config.scrollstep);
+		if (!osd_mapped())
+			map_osd();
+		if (osd_mapped())
+			update_osd(mixer_get_volume(), false);
+		ui_update();
+		return 1;
+	}
+	if (event->keycode == mmkeys.lower_volume) {
+		mixer_set_volume_rel(-config.scrollstep);
+		if (!osd_mapped())
+			map_osd();
+		if (osd_mapped())
+			update_osd(mixer_get_volume(), false);
+		ui_update();
+		return 1;
+	}
+	if (event->keycode == mmkeys.mute) {
+		mixer_toggle_mute();
+		ui_update();
+		return 1;
+	}
+
+	/* Ignore other keys */
+	return 0;
+}
+
 static void button_release_event(XButtonEvent *event)
 {
     int x = event->x;
@@ -362,7 +325,7 @@ static void button_release_event(XButtonEvent *event)
 
     if (region == 1)
 	set_cursor(HAND_CURSOR);
-    
+
     button_pressed = false;
     slider_pressed = false;
 }
@@ -409,7 +372,7 @@ static void motion_event(XMotionEvent *event)
 			mouse_drag_home_x, mouse_drag_home_y);
 	return;
     }
-    
+
     if (region == 1)
 	set_cursor(HAND_CURSOR);
     else if (region == 2)

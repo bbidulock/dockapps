@@ -1,0 +1,50 @@
+2015 April 7
+  * Use sysctl for swap usage information in FreeBSD.
+    Use sysctl instead of kvm_getswapinfo() to read the swap usage information
+    in FreeBSD.  This removes the need for a dependency on libkvm and for a
+    setgid binary.
+    Based on the Debian patch [1].
+  * Release version 0.1.8.
+
+    [1] https://sources.debian.net/src/wmmemload/0.1.7-2/debian/patches/sysctl_swap.patch/
+
+2014 October 9
+  * Use sysctl to get memory usage in FreeBSD.
+  * Recognize GNU/kFreeBSD as possible OS during configure.
+  * Fix compiler warnings.
+  * Use consistent formatting in source code.
+  * Update for Linux kernels >= 3.14.
+  * Release version 0.1.7.
+
+2014 October 7
+  * Fix FTBFS on the Hurd (submitted by Svante Signell).
+
+2014 October 4
+  * Now maintained by Window Maker Developers Team
+	<wmaker-dev@lists.windowmaker.org>
+  * Fix autotools warnings.
+  * Fix errors in the manpage.
+  * Fix version check for kernel 3.0 (submitted by Guillermo Indalecio
+	Fernandez).
+
+2003 November 3
+  * Fixed problem with buffers/cache on Linux 2.6.*
+
+2002 June 24
+  * Fixed backlight background (submitted by Pete ???)
+
+2002 April 11
+  * Minor clean-up
+
+2002 April 10
+  * version 0.1.2 released.
+  * Fixed missing middle 0 in 100% for swap and memory (found by Callum M. Duncan)
+  * Removed unnecessary icons directory
+  * Removed unnecessary stamp-h
+
+2002 April 09
+  * version 0.1.1 released.
+  * Added doc directory to configure.ac (found by Søren Boll Overgaard)
+
+2002 April 03
+  * version 0.1.0 released. (Initial Release)

@@ -13,21 +13,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
-/* #define RETARDED_APM */
-/* #define STUPID_APM */
-/* see README if you need to #define these or not. No user serviceable
- * parts below */
-
 #define _GNU_SOURCE
+
+#include <dockapp.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <getopt.h>
 #include <unistd.h>
 #include <time.h>
 
@@ -37,178 +34,254 @@
 #include <X11/extensions/shape.h>
 #include <X11/xpm.h>
 
+#include "libacpi.h"
 #include "wmacpi.h"
 
-#if defined(ACPI) && defined(APM)
-# error Cannot compile with ACPI and APM compiled in.  Please select only one.
-#endif
+#define WMACPI_VER "2.3"
 
 /* main pixmap */
 #ifdef LOW_COLOR
 #include "master_low.xpm"
+static char **master_xpm = master_low_xpm;
 #else
 #include "master.xpm"
 #endif
 
-typedef struct {
-    Display *display;		/* X11 display struct */
-    int screen;			/* current screen */
-    Window root;		/* root window */
-    Window win;			/* one window */
-    Window iconwin;		/* another one */
-    Pixmap pixmap;		/* UI pixmap, window pixmap */
-    Pixmap mask;		/* mask pixmap for shape */
-    GC gc;			/* main drawing GC */
+/* Do NOT change the BASE_PERIOD without reading the code ... */
+#define BASE_PERIOD 100000 /* base period, 100 ms (in usecs) */
+
+struct dockapp {
+    int x_fd;                   /* X11 fd */
+    Display *display;		/* display */
+    Window win;			/* main window */
+    Pixmap pixmap;		/* main pixmap */
+    Pixmap mask;		/* mask pixmap */
     Pixmap text;		/* pixmap for text scroller */
+    unsigned short width;	/* width of pixmap */
+    unsigned short height;	/* height of pixmap */
+    int screen;			/* current screen */
     int tw;			/* text width inside text pixmap */
     int update;			/* need to redraw? */
-    int pressed;		/* is the button pressed? */
-    DspMode dspmode;		/* time remaining or battery timer */
-    Mode blink;			/* should we blink the LED? (critical battery) */
-} Dockapp;
-
-/* for debug printing */
-#ifdef PRO
-char *state[] = { "AC", "Charging", "High", "Low", "Crit" };
-#endif
+    int blink;			/* should we blink the LED? (critical battery) */
+    int bell;			/* bell on critical low, or not? */
+    int scroll;			/* scroll message text? */
+    int scroll_reset;		/* reset the scrolling text */
+    int percent;
+    int period_length;         /* length of the polling period, multiple of BASE_PERIOD */
+};
 
 /* globals */
-Dockapp *dockapp;
-APMInfo *apminfo;
-int count = 0;			/* global timer variable */
-int noisy_critical = 0;		/* ring xbell annoyingly if critical? */
+struct dockapp *dockapp;
+/* global_t *globals; */
 
-/* proto for local stuff */
-static void new_window(char *name);
-static int open_display(char *display);
-static void redraw_window(void);
-static void render_text(char *string);
-static void scroll_text(int x, int y, int width, int tw, int reset);
-static void display_percentage(int percent);
-static void display_state(void);
-static void display_time(int minutes);
-static void blink_button(Mode mode);
+/* this gives us a variable scroll rate, depending on the importance of the
+ * message . . . */
+#define DEFAULT_SCROLL_RESET 150;
+int scroll_reset = DEFAULT_SCROLL_RESET;
 
-#define copy_xpm_area(x, y, w, h, dx, dy)				\
-{									\
-    XCopyArea(dockapp->display, dockapp->pixmap, dockapp->pixmap,	\
-	    dockapp->gc, x, y, w, h, dx, dy);				\
-    dockapp->update = 1;						\
+/* copy a chunk of pixmap around the app */
+static void copy_xpm_area(int x, int y, int w, int h, int dx, int dy)
+{
+    XCopyArea(DADisplay, dockapp->pixmap, dockapp->pixmap,
+	      DAGC, x, y, w, h, dx, dy);
+    dockapp->update = 1;
+}
+
+/* display AC power symbol */
+static void display_power_glyph(void)
+{
+    copy_xpm_area(67, 38, 12, 7, 6, 17);
+}
+
+/* get rid of AC power symbol */
+static void kill_power_glyph(void)
+{
+    copy_xpm_area(67, 48, 12, 7, 6, 17);
+}
+
+/* display battery symbol */
+static void display_battery_glyph(void)
+{
+    copy_xpm_area(82, 38, 12, 7, 20, 17);
+}
+
+/* get rid of battery symbol */
+static void kill_battery_glyph(void)
+{
+    copy_xpm_area(82, 48, 12, 7, 20, 17);
+}
+
+/* clear the time display */
+static void clear_time_display(void)
+{
+    copy_xpm_area(114, 76, 31, 11, 7, 32);
+}
+
+/* set time display to -- -- */
+static void invalid_time_display(void)
+{
+    copy_xpm_area(122, 14, 31, 11, 7, 32);
+}
+
+static void reset_scroll(void) {
+    dockapp->scroll_reset = 1;
+}
+
+static void clear_text_area(void) {
+    copy_xpm_area(66, 9, 52, 7, 6, 50);
 }
 
 static void redraw_window(void)
 {
     if (dockapp->update) {
-	eprint(1, "redrawing window");
-	XCopyArea(dockapp->display, dockapp->pixmap, dockapp->iconwin,
-		  dockapp->gc, 0, 0, 64, 64, 0, 0);
 	XCopyArea(dockapp->display, dockapp->pixmap, dockapp->win,
-		  dockapp->gc, 0, 0, 64, 64, 0, 0);
+		  DAGC, 0, 0, 64, 64, 0, 0);
 	dockapp->update = 0;
     }
 }
 
-static void new_window(char *name)
+static void new_window(char *display, char *name, int argc, char **argv)
 {
-    XpmAttributes attr;
-    Pixel fg, bg;
-    XGCValues gcval;
-    XSizeHints sizehints;
-    XClassHint classhint;
-    XWMHints wmhints;
+    XSizeHints *hints;
 
-    dockapp->screen = DefaultScreen(dockapp->display);
-    dockapp->root = DefaultRootWindow(dockapp->display);
-
-    sizehints.flags = USSize;
-    sizehints.width = 64;
-    sizehints.height = 64;
-
-    fg = BlackPixel(dockapp->display, dockapp->screen);
-    bg = WhitePixel(dockapp->display, dockapp->screen);
-
-    dockapp->win = XCreateSimpleWindow(dockapp->display, dockapp->root,
-				       0, 0, sizehints.width,
-				       sizehints.height, 1, fg, bg);
-    dockapp->iconwin =
-	XCreateSimpleWindow(dockapp->display, dockapp->win, 0, 0,
-			    sizehints.width, sizehints.height, 1, fg, bg);
-
-    XSetWMNormalHints(dockapp->display, dockapp->win, &sizehints);
-    classhint.res_name = name;
-    classhint.res_class = name;
-    XSetClassHint(dockapp->display, dockapp->win, &classhint);
+    /* Initialise the dockapp window and appicon */
+    DAOpenDisplay(display, argc, argv);
+    DACreateIcon(name, 64, 64, argc, argv);
+    dockapp->display = DADisplay;
+    dockapp->x_fd = XConnectionNumber(dockapp->display);
+    dockapp->win = DAWindow;
 
     XSelectInput(dockapp->display, dockapp->win,
-		 ExposureMask | ButtonPressMask | ButtonReleaseMask |
-		 StructureNotifyMask);
-    XSelectInput(dockapp->display, dockapp->iconwin,
-		 ExposureMask | ButtonPressMask | ButtonReleaseMask |
-		 StructureNotifyMask);
+                 ExposureMask | ButtonPressMask | ButtonReleaseMask |
+                 StructureNotifyMask);
 
-    XStoreName(dockapp->display, dockapp->win, name);
-    XSetIconName(dockapp->display, dockapp->win, name);
-
-    gcval.foreground = fg;
-    gcval.background = bg;
-    gcval.graphics_exposures = False;
-
-    dockapp->gc =
-	XCreateGC(dockapp->display, dockapp->win,
-		  GCForeground | GCBackground | GCGraphicsExposures,
-		  &gcval);
-
-    attr.exactColors = 0;
-    attr.alloc_close_colors = 1;
-    attr.closeness = 1L << 15;
-    attr.valuemask = XpmExactColors | XpmAllocCloseColors | XpmCloseness;
-    if (XpmCreatePixmapFromData(dockapp->display, dockapp->win,
-				master_xpm, &dockapp->pixmap,
-				&dockapp->mask, &attr) != XpmSuccess) {
-	fprintf(stderr, "FATAL: Not enough colors for main pixmap!\n");
-	exit(1);
-    }
+    /* create the main pixmap . . . */
+    DAMakePixmapFromData(master_xpm, &dockapp->pixmap, &dockapp->mask,
+			 &dockapp->width, &dockapp->height);
+    DASetPixmap(dockapp->pixmap);
+    DASetShape(dockapp->mask);
 
     /* text area is 318x7, or 53 characters long */
     dockapp->text = XCreatePixmap(dockapp->display, dockapp->win, 318, 7,
 				  DefaultDepth(dockapp->display,
 					       dockapp->screen));
     if (!dockapp->text) {
-	fprintf(stderr, "FATAL: Cannot create text scroll pixmap!\n");
+	pfatal("FATAL: Cannot create text scroll pixmap!\n");
 	exit(1);
     }
 
-    XShapeCombineMask(dockapp->display, dockapp->win, ShapeBounding, 0, 0,
-		      dockapp->mask, ShapeSet);
-    XShapeCombineMask(dockapp->display, dockapp->iconwin, ShapeBounding, 0,
-		      0, dockapp->mask, ShapeSet);
+    /* force the window to stay this size - otherwise the user could
+     * resize us and see our panties^Wmaster pixmap . . . */
+    hints = XAllocSizeHints();
+    if(hints) {
+	hints->flags |= PMinSize | PMaxSize;
+	hints->min_width = 64;
+	hints->max_width = 64;
+	hints->min_height = 64;
+	hints->max_height = 64;
+	XSetWMNormalHints(dockapp->display, dockapp->win, hints);
+	XFree(hints);
+    }
 
-    wmhints.initial_state = WithdrawnState;
-    wmhints.flags = StateHint;
-    wmhints.icon_window = dockapp->iconwin;
-    wmhints.icon_x = sizehints.x;
-    wmhints.icon_y = sizehints.y;
-    wmhints.window_group = dockapp->win;
-    wmhints.flags =
-	StateHint | IconWindowHint | IconPositionHint | WindowGroupHint;
-    XSetWMHints(dockapp->display, dockapp->win, &wmhints);
+    DAShow();
+}
 
-    XMapWindow(dockapp->display, dockapp->win);
+static void copy_to_text_buffer(int sx, int sy, int w, int h, int dx, int dy)
+{
+    XCopyArea(dockapp->display, dockapp->pixmap, dockapp->text,
+	      DAGC, sx, sy, w, h, dx, dy);
+}
+
+static void copy_to_text_area(int sx, int sy, int w, int h, int dx, int dy)
+{
+    XCopyArea(dockapp->display, dockapp->text, dockapp->pixmap,
+	      DAGC, sx, sy, w, h, dx, dy);
+}
+
+static void scroll_text(void)
+{
+    static int start, end, stop;
+    int x = 6;			/* x coord of the start of the text area */
+    int y = 50;			/* y coord */
+    int width = 51;		/* width of the text area */
+    int height = 7;		/* height of the text area */
+    int tw = dockapp->tw;	/* width of the rendered text */
+    int sx, dx, w;
+
+    if (!dockapp->scroll)
+	return;
+
+    /*
+     * Conceptually this is viewing the text through a scrolling
+     * window - the window starts out with the end immediately before
+     * the text, and stops when the start of the window is immediately
+     * after the end of the text.
+     *
+     * We begin with the start of the window at pixel (0 - width) and
+     * as we scroll we render only the portion of the window above
+     * pixel 0. The destination of the copy during this period starts
+     * out at the end of the text area and works left as more of the
+     * text is being copied, until a full window is being copied.
+     *
+     * As the end of the window moves out past the end of the text, we
+     * want to keep the destination at the beginning of the text area,
+     * but copy a smaller and smaller chunk of the text. Eventually the
+     * start of the window will scroll past the end of the text, at
+     * which point we stop doing any work and wait to be reset.
+     */
+
+    if (dockapp->scroll_reset) {
+	start = 0 - width;
+	end = 0;
+	stop = 0;
+	clear_text_area();
+	dockapp->scroll_reset = 0;
+    }
+
+    if (stop)
+	return;
+
+    w = 52;
+    if (end < 52)
+	w = end;
+    else if (end > tw)
+	w = 52 - (end - tw);
+
+    dx = x + 52 - w;
+    if (end > tw)
+	dx = x;
+
+    sx = start;
+    if (start < 0)
+	sx = 0;
+
+    if (start > tw)
+	stop = 1;
+
+    clear_text_area();
+    copy_to_text_area(sx, 0, w, height, dx, y);
+    start += 2;
+    end += 2;
+
+    dockapp->update = 1;
 }
 
 static void render_text(char *string)
 {
     int i, c, k;
 
+    /* drop out immediately if scrolling is disabled - we don't render
+     * any text at all, since there's not much else we could do
+     * sensibly without scrolling. */
+    if (!dockapp->scroll)
+	return;
+
     if (strlen(string) > 53)
 	return;
 
-    eprint(1, "rendering: %s", string);
-
     /* prepare the text area by clearing it */
     for (i = 0; i < 54; i++) {
-	XCopyArea(dockapp->display, dockapp->pixmap, dockapp->text,
-		  dockapp->gc, 133, 57, 6, 8, i * 6, 0);
+	copy_to_text_buffer(133, 57, 6, 8, i * 6, 0);
     }
     k = 0;
 
@@ -216,94 +289,53 @@ static void render_text(char *string)
 	c = toupper(string[i]);
 	if (c >= 'A' && c <= 'Z') {	/* letter */
 	    c = c - 'A';
-	    XCopyArea(dockapp->display, dockapp->pixmap, dockapp->text,
-		      dockapp->gc, c * 6, 67, 6, 7, k, 0);
+	    copy_to_text_buffer(c * 6, 67, 6, 7, k, 0);
 	} else if (c >= '0' && c <= '9') {	/* number */
 	    c = c - '0';
-	    XCopyArea(dockapp->display, dockapp->pixmap, dockapp->text,
-		      dockapp->gc, c * 6 + 66, 58, 6, 7, k, 0);
+	    copy_to_text_buffer(c * 6 + 66, 58, 6, 7, k, 0);
 	} else if (c == '.') {
-	    XCopyArea(dockapp->display, dockapp->pixmap, dockapp->text,
-		      dockapp->gc, 140, 58, 6, 7, k, 0);
+	    copy_to_text_buffer(140, 58, 6, 7, k, 0);
 	} else if (c == '-') {
-	    XCopyArea(dockapp->display, dockapp->pixmap, dockapp->text,
-		      dockapp->gc, 126, 58, 6, 7, k, 0);
+	    copy_to_text_buffer(126, 58, 6, 7, k, 0);
 	}
 	k += 6;
     }
     dockapp->tw = k;		/* length of text segment */
     /* re-scroll the message */
-    scroll_text(6, 50, 52, dockapp->tw, 1);
-    /* reset the scroll repeat counter */
-    count = 0;
+    reset_scroll();
+    scroll_text();
 }
 
-static int open_display(char *display)
+static void clear_percentage(void)
 {
-    dockapp->display = XOpenDisplay(display);
-    if (!dockapp->display) {
-	fprintf(stderr, "Unable to open display '%s'\n", display);
-	return 1;
-    }
-    return 0;
-}
+  /* clear the number */
+  copy_xpm_area(95, 47, 21, 9, 37, 16);
+  /* clear the bar */
+  copy_xpm_area(66, 18, 54, 8, 5, 5);
 
-static void scroll_text(int x, int y, int width, int tw, int reset)
-{
-    static int pos, first, stop;
-
-    if (reset) {
-	pos = 0;
-	first = 0;
-	stop = 0;
-	XCopyArea(dockapp->display, dockapp->pixmap, dockapp->text,
-		  dockapp->gc, 0, 0, width, 7, x, y);
-    }
-
-    if (stop) {
-	return;
-    }
-
-    if ((first == 0) && pos == 0) {
-	pos = width;
-	first = 1;
-    }
-
-    if (pos == (0 - tw - 2)) {
-	first = 1;
-	pos = width;
-	stop = 1;
-	return;
-    }
-    pos -= 2;
-
-    eprint(0, "scrolling");
-
-    if (pos > 0) {
-	copy_xpm_area(66, 9, pos, 7, x, y);	/* clear */
-	XCopyArea(dockapp->display, dockapp->text, dockapp->pixmap,
-		  dockapp->gc, 0, 0, width - pos, 7, x + pos, y);
-    } else {			/* don't need to clear, already in text */
-	XCopyArea(dockapp->display, dockapp->text, dockapp->pixmap,
-		  dockapp->gc, abs(pos), 0, width, 7, x, y);
-    }
-    dockapp->update = 1;
+  dockapp->percent = -1;
 }
 
 static void display_percentage(int percent)
 {
-    static int op = -1, obar;
     unsigned int bar;
+    int width = 54;		/* width of the bar */
+    float ratio = 100.0/width;	/* ratio between the current percentage
+				 * and the number of pixels in the bar */
 
-    eprint(1, "received: %d\n", percent);
+    if (percent == -1)
+	percent = 0;
 
-    if (op == percent)
+    if (dockapp->percent == percent)
 	return;
 
     if (percent < 0)
 	percent = 0;
     if (percent > 100)
 	percent = 100;
+
+    if (dockapp->percent == -1)
+	copy_xpm_area(127, 28, 5, 7, 52, 17);
 
     if (percent < 100) {	/* 0 - 99 */
 	copy_xpm_area(95, 48, 8, 7, 37, 17);
@@ -312,46 +344,41 @@ static void display_percentage(int percent)
 	copy_xpm_area((percent % 10) * 6 + 67, 28, 5, 7, 46, 17);
     } else
 	copy_xpm_area(95, 37, 21, 9, 37, 16);	/* 100% */
-    op = percent;
+    dockapp->percent = percent;
 
-    bar = percent / 1.8518;
-
-    if (bar == obar)
-	return;
+    bar = (int)((float)percent / ratio);
 
     copy_xpm_area(66, 0, bar, 8, 5, 5);
     if (bar < 54)
 	copy_xpm_area(66 + bar, 18, 54 - bar, 8, bar + 5, 5);
-    obar = bar;
 }
 
 static void display_time(int minutes)
 {
     static int ohour = -1, omin = -1;
-    static int counter;
     int hour, min, tmp;
 
-    if (minutes == -1) {	/* error - blink 00:00 */
-	counter++;
-	if (counter == 5) {
-	    copy_xpm_area(80, 76, 31, 11, 7, 32);
-	} else if (counter == 10) {
-	    copy_xpm_area(114, 76, 31, 11, 7, 32);
-	}
-	if (counter > 10)
-	    counter = 0;
+    if (minutes <= 0) {	/* error - clear the display */
+	invalid_time_display();
 	ohour = omin = -1;
 	return;
     }
 
     /* render time on the display */
     hour = minutes / 60;
-    min = minutes % 60;
+    /* our display area only fits %2d:%2d, so we need to make sure
+     * what we're displaying will fit in those constraints. I don't
+     * think we're likely to see any batteries that do more than
+     * 100 hours any time soon, so it's fairly safe. */
+    if (hour >= 100) {
+	hour = 99;
+	min = 59;
+    } else
+	min = minutes % 60;
 
     if (hour == ohour && min == omin)
 	return;
 
-    eprint(0, "redrawing time");
     tmp = hour / 10;
     copy_xpm_area(tmp * 7 + 1, 76, 6, 11, 7, 32);
     tmp = hour % 10;
@@ -365,177 +392,440 @@ static void display_time(int minutes)
     omin = min;
 }
 
-static void display_state(void)
+/*
+ * The reworked state handling stuff.
+ */
+
+/* set the current state of the power panel */
+enum panel_states {
+    PS_AC,
+    PS_BATT,
+    PS_NULL,
+};
+
+static void really_blink_power_glyph(void)
 {
-    static int dopower;
-    static int docharging;
-    static int dobattery;
-    static int docritical;
-    static int counter;
-    
-    switch (apminfo->power) {
-    case POWER:
-	eprint(0, "selected ac power case");
-	if (!dopower) {
-	    dopower = 1;
-	    docharging = 0;
-	    dobattery = 0;
-	    dockapp->blink = OFF;
-	    copy_xpm_area(67, 38, 12, 7, 6, 17);
-	    copy_xpm_area(82, 48, 11, 7, 20, 17);
-	    render_text("On AC power");
+    static int counter = 0;
+
+    if (counter == 10)
+	display_power_glyph();
+    else if (counter == 20)
+	kill_power_glyph();
+    else if (counter > 30)
+	counter = 0;
+
+    counter += dockapp->period_length;
+}
+
+static void blink_power_glyph(void)
+{
+    if (dockapp->blink)
+	really_blink_power_glyph();
+}
+
+static void really_blink_battery_glyph(void)
+{
+    static int counter = 0;
+
+    if (counter == 10)
+	display_battery_glyph();
+    else if (counter == 20)
+	kill_battery_glyph();
+    else if (counter > 30)
+	counter = 0;
+
+    counter += dockapp->period_length;
+}
+
+static void blink_battery_glyph(void)
+{
+    if (dockapp->blink)
+	really_blink_battery_glyph();
+}
+
+static void set_power_panel(global_t *globals)
+{
+    static enum panel_states power = PS_NULL;
+    battery_t *binfo = globals->binfo;
+    adapter_t *ap = &globals->adapter;
+
+    if (ap->power == AC) {
+	if (power != PS_AC) {
+	    power = PS_AC;
+	    kill_battery_glyph();
+	    display_power_glyph();
 	}
-	break;
-    case CHARGING:
-	eprint(0, "selected charging case");
-	counter++;
-	if (counter == 10) {
-	    copy_xpm_area(67, 38, 12, 7, 6, 17);
-	} else if (counter == 20) {
-	    copy_xpm_area(67, 48, 12, 7, 6, 17);
+    } else if (ap->power == BATT) {
+	if (power != PS_BATT) {
+	    power = PS_BATT;
+	    kill_power_glyph();
+	    display_battery_glyph();
 	}
-	if (counter > 20)
-	    counter = 0;
-	if (!docharging) {
-	    render_text("Battery is charging");
-	    /* get rid of battery symbol */
-	    copy_xpm_area(82, 48, 12, 7, 20, 17);
-	    /* housekeeping */
-	    dockapp->blink = OFF;
-	    docharging = 1;
-	    dopower = 0;
-	    dobattery = 0;
+    }
+
+    if (globals->battery_count > 0) {
+	if (binfo->charge_state == CHARGE)
+	    blink_power_glyph();
+
+	if ((binfo->state == CRIT) && (ap->power == BATT))
+	    blink_battery_glyph();
+    }
+}
+
+void scroll_faster(double factor) {
+    scroll_reset = scroll_reset * factor;
+}
+
+void scroll_slower(double factor) {
+    scroll_reset = scroll_reset * factor;
+}
+
+void reset_scroll_speed(void) {
+    scroll_reset = DEFAULT_SCROLL_RESET;
+}
+
+/*
+ * The message that needs to be displayed needs to be decided
+ * according to a heirarchy: a message like not present needs to take
+ * precedence over a global thing like the current power status, and
+ * something like a low battery warning should take precedence over
+ * the "on battery" message. Likewise, a battery charging message
+ * needs to take precedence over the on ac power message. The other
+ * question is how much of a precedence local messages should take
+ * over global ones . . .
+ *
+ * So, there are three possible sets of messages: not present, on-line
+ * and off-line messages. We need to decide which of those sets is
+ * appropriate right now, and then decide within them.
+ */
+enum messages {
+    M_NB,	/* no batteries */
+    M_NP,	/* not present */
+    M_AC,	/* on ac power */
+    M_CH,	/* battery charging */
+    M_BATT,	/* on battery */
+    M_LB,	/* low battery */
+    M_CB,	/* critical low battery */
+    M_HCB,	/* battery reported critical capacity state */
+    M_NULL,	/* empty starting state */
+};
+
+static void set_message(global_t *globals)
+{
+    static enum messages state = M_NULL;
+    battery_t *binfo = globals->binfo;
+    adapter_t *ap = &globals->adapter;
+
+    if (globals->battery_count == 0) {
+	if (state != M_NB) {
+	    state = M_NB;
+	    reset_scroll_speed();
+	    render_text("no batteries");
 	}
-	break;
-    case HIGH:
-    case LOW:
-    case CRIT:
-	eprint(0, "selected battery case");
-	if (!dobattery) {
-	    render_text("On Battery");
-	    /* display battery symbol */
-	    copy_xpm_area(82, 38, 12, 7, 20, 17);
-	    /* get rid of AC power symbol */
-	    copy_xpm_area(67, 48, 12, 7, 6, 17);
-	    dobattery = 1;
-	    dopower = 0;
-	    docharging = 0;
+
+	return;
+    }
+
+    /* battery not present case */
+    if (!binfo->present) {
+	if (state != M_NP) {
+	    state = M_NP;
+	    reset_scroll_speed();
+	    render_text("not present");
 	}
-	if (apminfo->power == CRIT) {
-	    dockapp->blink = BLINK;
-	    if (!docritical) {
-		render_text("Battery Critical Low");
-		docritical = 1;
+    } else if (ap->power == AC) {
+	if (binfo->charge_state == CHARGE) {
+	    if (state != M_CH) {
+		state = M_CH;
+		reset_scroll_speed();
+		render_text("battery charging");
 	    }
 	} else {
-	    if (docritical) {
-		render_text("On Battery");
-		docritical = 0;
+	    if (state != M_AC) {
+		state = M_AC;
+		reset_scroll_speed();
+		render_text("on ac power");
 	    }
-	    dockapp->blink = OFF;
 	}
-	break;
+    } else {
+	if (binfo->state == CRIT) {
+	    if (state != M_CB) {
+		state = M_CB;
+		scroll_faster(0.75);
+		render_text("critical low battery");
+	    }
+	} else if (binfo->state == LOW) {
+	    if (state != M_LB) {
+		state = M_LB;
+		scroll_faster(0.85);
+		render_text("low battery");
+	    }
+	} else {
+	    if (state != M_BATT) {
+		state = M_BATT;
+		reset_scroll_speed();
+		render_text("on battery");
+	    }
+	}
     }
 }
 
-static void blink_button(Mode mode)
+void set_time_display(global_t *globals)
 {
-    static int counter;
-    static int clear;
-
-    if ((mode == OFF) && !clear) {
-	eprint(0, "we are off");
-	copy_xpm_area(136, 38, 3, 3, 44, 30);
-	clear = 1;
+    if (globals->battery_count == 0) {
+        invalid_time_display();
 	return;
     }
-    if (mode != BLINK)
-	return;
 
-    counter++;
-
-    if (counter == 5) {
-	copy_xpm_area(137, 33, 3, 3, 44, 30);
-	clear = 0;
-    } else if (counter == 10) {
-	copy_xpm_area(136, 38, 3, 3, 44, 30);
-	clear = 0;
-	/* make some noise */
-	if (noisy_critical)
-	    XBell(dockapp->display, 100);
-    }
-    if (counter > 10)
-	counter = 0;
+    if (globals->binfo->charge_state == CHARGE)
+	display_time(globals->binfo->charge_time);
+    else if (globals->binfo->charge_state == DISCHARGE)
+	display_time(globals->rtime);
+    else
+	invalid_time_display();
 }
+
+void clear_batt_id_area(void)
+{
+    copy_xpm_area(125, 40, 7, 11, 51, 32);
+}
+
+void set_batt_id_area(int bno)
+{
+    int w = 7;			/* Width of the number */
+    int h = 11;			/* Height of the number */
+    int dx = 50;		/* x coord of the target area */
+    int dy = 32;		/* y coord of the target area */
+    int sx = (bno + 1) * 7;	/* source x coord */
+    int sy = 76;		/* source y coord */
+
+    copy_xpm_area(sx, sy, w, h, dx, dy);
+}
+
+#define VERSION "wmacpi version " WMACPI_VER "\nUsing libacpi version " LIBACPI_VER
+
+void cli_wmacpi(global_t *globals, int samples)
+{
+    int i, j, sleep_time = 0;
+    battery_t *binfo;
+    adapter_t *ap;
+
+    pdebug("samples: %d\n", samples);
+    if(samples > 1)
+    	sleep_time = 1000000/samples;
+
+    /* we want to acquire samples over some period of time, so . . . */
+    for(i = 0; i < samples + 2; i++) {
+	for(j = 0; j < globals->battery_count; j++)
+	    acquire_batt_info(globals, j);
+	acquire_global_info(globals);
+	usleep(sleep_time);
+    }
+
+    ap = &globals->adapter;
+    if(ap->power == AC) {
+	printf("On AC Power");
+	for(i = 0; i < globals->battery_count; i++) {
+	    binfo = &batteries[i];
+	    if(binfo->present && (binfo->charge_state == CHARGE)) {
+		printf("; Battery %s charging", binfo->name);
+		printf(", currently at %2d%%", binfo->percentage);
+		if(binfo->charge_time >= 0)
+		    printf(", %2d:%02d remaining",
+			   binfo->charge_time/60,
+			   binfo->charge_time%60);
+	    }
+	}
+	printf("\n");
+    } else if(ap->power == BATT) {
+	printf("On Battery");
+	for(i = 0; i < globals->battery_count; i++) {
+	    binfo = &batteries[i];
+	    if(binfo->present && (binfo->percentage >= 0))
+		printf(", Battery %s at %d%%", binfo->name,
+		       binfo->percentage);
+	}
+	if(globals->rtime >= 0)
+	    printf("; %d:%02d remaining", globals->rtime/60,
+		   globals->rtime%60);
+	printf("\n");
+    }
+    return;
+}
+
+battery_t *switch_battery(global_t *globals, int battno)
+{
+  globals->binfo = &batteries[battno];
+  pinfo("changing to monitor battery %s\n", globals->binfo->name);
+  set_batt_id_area(battno);
+  dockapp->update = 1;
+
+  return globals->binfo;
+}
+
 
 int main(int argc, char **argv)
 {
     char *display = NULL;
-    char ch;
-    int update = 0;
+    int sample_count = 0;
+    int batt_reinit, ac_reinit;
+    int batt_count = 0;
+    int ac_count = 0;
+    int cli = 0, samples = 1, critical = 10;
+    int samplerate = 20;
+    int scroll_count = 0;
+    enum rtime_mode rt_mode = RT_RATE;
+    int rt_forced = 0;
+    battery_t *binfo = NULL;
+    global_t *globals;
 
-    dockapp = calloc(1, sizeof(Dockapp));
-    apminfo = calloc(1, sizeof(APMInfo));
+    fd_set fds;
+    struct timeval tv_rate;
+    struct timeval tv = {0, 0};
 
-    dockapp->blink = OFF;
-    apminfo->crit_level = 10;
+    DAProgramOption options[] = {
+     {"-r", "--no-scroll", "disable scrolling message", DONone, False, {NULL}},
+     {"-n", "--no-blink", "disable blinking of various UI elements", DONone, False, {NULL}},
+     {"-x", "--cmdline", "run in command line mode",  DONone, False, {NULL}},
+     {"-f", "--force-capacity-mode", "force the use of capacity mode for calculating time remaining", DONone, False, {NULL}},
+     {"-d", "--display", "display or remote display", DOString, False, {&display}},
+     {"-c", "--critical", "set critical low alarm at <number> percent\n                               (default: 10 percent)", DONatural, False, {&critical}},
+     {"-m", "--battery", "battery number to monitor", DONatural, False, {&battery_no}},
+     {"-s", "--sample-rate", "number of times per minute to sample battery information\n                               default 20 (once every three seconds)", DONatural, False, {&samplerate}},
+     {"-V", "--verbosity", "Set verbosity", DONatural, False, {&verbosity}},
+     {"-a", "--samples", "number of samples to average over (cli mode only)",  DONatural, False, {&samples}},
+    };
 
-    /* see if whatever we want to use is supported */
-    if (power_init()) {
+    dockapp = calloc(1, sizeof(struct dockapp));
+    globals = calloc(1, sizeof(global_t));
+
+    dockapp->blink = 1;
+    dockapp->bell = 0;
+    dockapp->scroll = 1;
+    dockapp->scroll_reset = 0;
+    globals->crit_level = 10;
+    battery_no = 1;
+
+    /* after this many samples, we reinit the battery and AC adapter
+     * information.
+     * XXX: make these configurable . . . */
+    batt_reinit = 100;
+    ac_reinit = 1000;
+
+    /* this needs to be up here because we need to know what batteries
+     * are available /before/ we can decide if the battery we want to
+     * monitor is available. */
+    /* parse command-line options */
+    DAParseArguments(argc, argv, options, 10,
+      "A battery monitor dockapp for ACPI based systems",
+      VERSION);
+
+    if (options[0].used)
+        dockapp->scroll = 0;
+    if (options[1].used)
+        dockapp->blink = 0;
+    if (options[2].used)
+        cli = 1;
+    if (options[3].used) {
+        rt_mode = RT_CAP;
+        rt_forced = 1;
+    }
+
+    if (samplerate == 0) samplerate = 1;
+    if (samplerate > 600) samplerate = 600;
+
+    /* convert to number of base periods */
+    samplerate = ((60 * 1000000) / samplerate) / BASE_PERIOD;
+
+    if (!dockapp->scroll) {
+	if (!dockapp->blink) {
+	    /* Adapt the period to the sample rate */
+	    tv_rate.tv_usec = samplerate * BASE_PERIOD;
+
+	    tv_rate.tv_sec = tv_rate.tv_usec / 1000000;
+	    tv_rate.tv_usec = tv_rate.tv_usec - (tv_rate.tv_sec * 1000000);
+
+	    dockapp->period_length = samplerate;
+	} else {
+	    /* blinking is every second */
+	    tv_rate.tv_sec = 1; /* BASE_PERIOD * 10 = 1 sec */
+	    tv_rate.tv_usec = 0;
+
+	    dockapp->period_length = 10;
+	}
+    } else {
+	/* scrolling is every BASE_PERIOD (100 ms) */
+	tv_rate.tv_sec = 0;
+	tv_rate.tv_usec = BASE_PERIOD;
+
+	dockapp->period_length = 1;
+    }
+
+    if (critical > 100) {
+        fprintf(stderr, "Please use values between 0 and 100%%\n");
+        fprintf(stderr, "Using default value of 10%%\n");
+        critical = 10;
+    }
+    globals->crit_level = critical;
+
+    if (battery_no >= MAXBATT) {
+        fprintf(stderr, "Please specify a battery number below %d\n", MAXBATT);
+        return 1;
+    }
+    pinfo("Monitoring battery %d\n", battery_no);
+
+    if (power_init(globals))
 	/* power_init functions handle printing error messages */
 	exit(1);
+
+    globals->rt_mode = rt_mode;
+    globals->rt_forced = rt_forced;
+
+    if (battery_no > globals->battery_count) {
+	pinfo("Battery %d not available for monitoring.\n", battery_no);
     }
 
-    /* parse command-line options */
-    while ((ch = getopt(argc, argv, "bd:c:h")) != EOF) {
-	switch (ch) {
-	case 'b':
-	    noisy_critical = 1;
-	    break;
-	case 'c':
-	    if (optarg) {
-		apminfo->crit_level = atoi(optarg);
-		if ((apminfo->crit_level < 0) || (apminfo->crit_level > 100)) {
-		    fprintf(stderr, "Please use values between 0 and 100%%\n");
-		    apminfo->crit_level = 10;
-		    fprintf(stderr, "Using default value of 10%%\n");
-		}
-	    }
-	    break;
-	case 'd':
-	    if (optarg)
-		display = strdup(optarg);
-	    break;
-	case 'h':
-	    printf("wmacpi - help\t\t[timecop@japan.co.jp]\n\n"
-		   "-d display\t\tdisplay on remote display <display>\n"
-		   "-b\t\t\tmake noise when battery is critical low (beep)\n"
-		   "-c value\t\tset critical low alarm at <value> percent\n"
-		   "\t\t\t(default: 10 percent)\n"
-		   "-h\t\t\tdisplay this help\n");
-	    return 0;
-	    break;
-	}
-	
+    /* check for cli mode */
+    if (cli) {
+	cli_wmacpi(globals, samples);
+	exit(0);
+    }
+    /* check to see if we've got a valid DISPLAY env variable, as a simple check to see if
+     * we're running under X */
+    if (!getenv("DISPLAY")) {
+	pdebug("Not running under X - using cli mode\n");
+	cli_wmacpi(globals, samples);
+	exit(0);
     }
 
-    /* open local or command-line specified display */
-    if (open_display(display))
-	exit(1);
+    battery_no--;
 
     /* make new dockapp window */
-    new_window("apm");
+    /* Don't even /think/ of asking me why, but if I set the window name to
+     * "acpi", the app refuses to dock properly - it's just plain /weird/.
+     * So, wmacpi it is . . . */
+    new_window(display, "wmacpi", argc, argv);
 
     /* get initial statistics */
-    acquire_info();
+    acquire_all_info(globals);
 
-    dockapp->dspmode = REMAIN;
+    if (globals->battery_count > 0) {
+	binfo = &batteries[battery_no];
+	globals->binfo = binfo;
+	set_batt_id_area(battery_no);
+	pinfo("monitoring battery %s\n", binfo->name);
+    }
+
+    clear_time_display();
+    set_power_panel(globals);
+    set_message(globals);
 
     /* main loop */
     while (1) {
+	Atom atom;
+	Atom wmdelwin;
 	XEvent event;
 	while (XPending(dockapp->display)) {
-	    eprint(0, "X11 activity");
 	    XNextEvent(dockapp->display, &event);
 	    switch (event.type) {
 	    case Expose:
@@ -549,86 +839,139 @@ int main(int argc, char **argv)
 		exit(0);
 		break;
 	    case ButtonPress:
-		/* press event */
-		if (event.xbutton.x >= 44 && event.xbutton.x <= 57 &&
-		    event.xbutton.y >= 30 && event.xbutton.y <= 43) {
-		    eprint(0, "inside button!");
-		    dockapp->pressed = 1;
-		    copy_xpm_area(118, 38, 15, 15, 44, 30);
-		}
 		break;
 	    case ButtonRelease:
-		/* release event */
-		if (event.xbutton.x >= 44 && event.xbutton.x <= 57 &&
-		    event.xbutton.y >= 30 && event.xbutton.y <= 43 &&
-		    dockapp->pressed) {
-		    /* handle button press */
-		    eprint(0, "release still inside button!");
-		    dockapp->pressed = 0;
-		    copy_xpm_area(136, 38, 15, 15, 44, 30);
-		    if ((apminfo->power != POWER) && (apminfo->power != CHARGING)) {
-			dockapp->dspmode = !dockapp->dspmode;
-			eprint(1, "Mode: %d", dockapp->dspmode);
-		    }
-		    /* end button press handler */
-		}
-		if (dockapp->pressed) {
-		    copy_xpm_area(136, 38, 15, 15, 44, 30);
-		    dockapp->pressed = 0;
+		if (globals->battery_count == 0)
+		    break;
+
+		/* cycle through the known batteries. */
+		battery_no++;
+		battery_no = battery_no % globals->battery_count;
+
+		binfo = switch_battery(globals, battery_no);
+		break;
+	    case ClientMessage:
+		/* what /is/ this crap?
+		 * Turns out that libdockapp adds the WM_DELETE_WINDOW atom to
+		 * the WM_PROTOCOLS property for the window, which means that
+		 * rather than get a simple DestroyNotify message, we get a
+		 * nice little message from the WM saying "hey, can you delete
+		 * yourself, pretty please?". So, when running as a window
+		 * rather than an icon, we're impossible to kill in a friendly
+		 * manner, because we're expecting to die from a DestroyNotify
+		 * and thus blithely ignoring the WM knocking on our window
+		 * border . . .
+		 *
+		 * This simply checks for that scenario - it may fail oddly if
+		 * something else comes to us via a WM_PROTOCOLS ClientMessage
+		 * event, but I suspect it's not going to be an issue. */
+		wmdelwin = XInternAtom(dockapp->display, "WM_DELETE_WINDOW", 1);
+		atom = event.xclient.data.l[0];
+		if (atom == wmdelwin) {
+		    XCloseDisplay(dockapp->display);
+		    exit(0);
 		}
 		break;
 	    }
 	}
 
-	if (update++ == 30) {
-	    eprint(1, "polling apm");
-	    acquire_info();
-	    update = 0;
+	/* XXX: some laptops have problems with sampling the battery
+	 * regularly - apparently, the BIOS disables interrupts while
+	 * reading from the battery, which is generally on a slow bus
+	 * and is a slow device, so you get significant periods without
+	 * interrupts. This causes interactivity to suffer . . .
+	 *
+	 * So, the workaround/fix for this is to sample at a much
+	 * lower rate than we may update/refresh/expose/whatever. The
+	 * user specifies how many times they want us to sample per
+	 * minute; we use select() on our X events fd to wake up when
+	 * there's some display work to be done, with the timeout set
+	 * to whatever the time between samples is. When we hit our
+	 * select() timeout we update our samples, otherwise we update
+	 * the display.
+	 *
+	 * Note that this has a wrinkle when blinking and/or scrolling
+	 * is enabled, since we need to update the display more
+	 * frequently than we sample (most likely). In that case we
+	 * set the timeout based on the display update cycle. */
+
+	/* have we completed our timeout, or were we woken up early? */
+	if ((tv.tv_sec != 0) || (tv.tv_usec != 0))
+	    goto win_update;
+
+	tv = tv_rate;
+
+	sample_count += dockapp->period_length;
+
+	if (sample_count >= samplerate) {
+	    if (globals->battery_count == 0) {
+	        batt_count = 0;
+
+	        reinit_batteries(globals);
+
+		/* battery appeared */
+		if (globals->battery_count > 0) {
+		    if (battery_no > globals->battery_count)
+		        battery_no = 0;
+
+		    binfo = switch_battery(globals, battery_no);
+		}
+	    }
+
+	    acquire_all_info(globals);
+
+	    /* we need to be able to reinitialise batteries and adapters, because
+	     * they change - you can hotplug batteries on most laptops these days
+	     * and who knows what kind of shit will be happening soon . . . */
+	    if (batt_count++ >= batt_reinit) {
+		if(reinit_batteries(globals))
+		    pfatal("Oh my god, the batteries are gone!\n");
+		batt_count = 0;
+	    }
+
+	    if (ac_count++ >= ac_reinit) {
+		if(reinit_ac_adapters(globals))
+		    pfatal("What happened to our AC adapters?!?\n");
+		ac_count = 0;
+	    }
+	    sample_count = 0;
 	}
 
-	if (count++ == 256) {
-	    scroll_text(6, 50, 52, dockapp->tw, 1);
-	    count = 0;
+	if (scroll_count++ >= scroll_reset) {
+	    reset_scroll();
+	    scroll_count = 0;
 	}
 
-	/* it's okay to test here because display_time will not draw anything
-	 * unless there is a change.  Also if we switched power states from
-	 * battery to charging/etc, we need to exit from "timer" mode */
-	if (dockapp->dspmode == REMAIN || apminfo->power == POWER || apminfo->power == CHARGING) {
-	    display_time(apminfo->rtime);
-	} else {
-	    display_time((time(NULL) - apminfo->timer) / 60);
-	}
+	/* The old code had some kind of weird crap with timers and the like.
+	 * As far as I can tell, it's meaningless - the time we want to display
+	 * is the time calculated from the remaining capacity, as per the
+	 * ACPI spec. The only thing I'd change is the handling of a charging
+	 * state: my best guess, based on the behaviour I'm seeing with my
+	 * Lifebook, is that the present rate value when charging is the rate
+	 * at which the batteries are being charged, which would mean I'd just
+	 * need to reverse the rtime calculation to be able to work out how
+	 * much time remained until the batteries were fully charged . . .
+	 * That would be rather useful, though given it would vary rather a lot
+	 * it seems likely that it'd be little more than a rough guesstimate. */
+	set_time_display(globals);
+	set_power_panel(globals);
+	set_message(globals);
 
-	display_state();
-	blink_button(dockapp->blink);
-	display_percentage(apminfo->percentage);
-	scroll_text(6, 50, 52, dockapp->tw, 0);
+	if (globals->battery_count == 0) {
+	    clear_percentage();
+	    clear_batt_id_area();
+	} else
+	    display_percentage(binfo->percentage);
 
-	/* redraw_window, if anything changed - determined inside 
-	 * redraw_window. */
+	scroll_text();
+
+    win_update:
+	/* redraw_window, if anything changed */
 	redraw_window();
-	usleep(100000);
+
+	FD_ZERO(&fds);
+	FD_SET(dockapp->x_fd, &fds);
+	select(FD_SETSIZE, &fds, NULL, NULL, &tv);
     }
     return 0;
-}
-
-/* this handles enabling "on-battery" timer.  It only needs to happen once
- * for each unplug event.  Functions from libapm and libacpi call this to
- * start the timer */
-void process_plugin_timer(void)
-{
-    static int timer;
-
-    if ((apminfo->power != POWER) && (apminfo->power != CHARGING) && !timer) {
-	eprint(1, "not AC and not charging, and timer is not started");
-	eprint(1, "starting battery timer");
-	apminfo->timer = time(NULL);
-	timer = 1;
-    }
-    if (((apminfo->power == POWER) || (apminfo->power == CHARGING)) && timer) {
-	eprint(1, "disabling battery timer");
-	timer = 0;
-    }
-
 }

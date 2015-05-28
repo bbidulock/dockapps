@@ -1,5 +1,131 @@
 Version         Description
 --------------------------------------------------------------
+1.3.1   * Released 150519
+
+	* Now maintained by Window Maker Developers Team
+	  <wmaker-dev@lists.windowmaker.org>.
+
+	* Update Free Software Foundation address and GPL2 text
+	  in COPYING.
+
+	* Remove getmodemspeed binary from source.
+
+	* Remove trailing whitespace.
+
+	* Add manpage (obtained from Debian package).
+
+	* Rename system wide fixed options configuration file
+	  for consistency.
+
+	* Allow ISDN devices.
+	  Users of ISDN dialup lines (such as me) cannot use
+	  wmppp as shipped, because it rejects to use any
+	  device except those beginning with `ppp'.
+	  The patch attached solves this.
+	  Based on the patch by Juan Cespedes <cespedes@debian.org> [1].
+
+	* Stampfile handling.
+	  This patch adds support for "stampfile" in config
+	  file, as described in manual page.
+	  Based on the patch by Juan Cespedes <cespedes@debian.org> [1].
+
+	* Display speed in K when too high.
+          When the download speed is too high, wmppp can't
+	  display it because it has only 5 digit. The most
+	  significant digits are hidden !
+	  This small patch display the speed in K when it is
+	  too high.
+	  Based on the patch by jguiton <jguiton@free.fr> [2].
+
+	* Use rm -f for make clean
+	  This patch prevents "make clean" from failing when
+	  the source tree is already clean.
+
+	* Use build flags.
+	  Compile with CPPFLAGS and LDFLAGS and do not
+	  overwrite CFLAGS.
+	  This enables the Debian package to be built with
+	  hardening options.  See [3].
+
+	* Update to latest version of wmgeneral library.
+
+	* Move source files to top directory.
+	  This way, users need only type "make" to build
+	  instead of needing to "cd wmppp" first.
+
+	* Fix spelling mistakes.
+	  Used codespell -w.
+
+	* Reduce scope of several variables.
+	  Fixes several "(style) The scope of the variable 'p'
+	  can be reduced" found by cppcheck.
+
+	* Switch ifs to #ifs for macros.
+	  Fixes "warning: null argument where non-null
+	  required" compiler warnings by not passing NULL to
+	  strdup and "(warning) Conversion of string literal
+	  to bool always evaluates to true" found by cppcheck.
+
+	* Remove unused parameter from get_statistics().
+	  Fixes "warning: unused parameter ‘devname’" compiler
+	  warning.
+
+	* Replace deprecated caddr_t cast with void*.
+
+	* Replace deprecated usleep with nanosleep.
+
+	* Remove C++ style comments.
+
+	* Use #includes from include-what-you-use.
+	  We actually include <sys/socket.h> instead of
+	  <bits/socket_type.h>, as it returns an error: "Never
+	  include <bits/socket_type.h> directly; use
+	  <sys/socket.h> instead."
+
+	* Update Makefile.  Main change is to use $(INSTALL)
+	  instead of cp in install target along with $(DESTDIR)
+	  variable.  We also remove installation of user
+	  ~/.wmppprc config file -- this isn't useful for
+	  sysadmins or package maintainers.
+	  We also update INSTALL to reflect the changes.
+
+	* Fix segfault when HOME undefined.
+	  Instead, we exit with an error message.  This fixes Debian bug #716472
+	  [4].
+
+	* Fix segfault if stop_action or start_action strings are NULL.
+
+	* Add new command line options.
+	  We add command line options for the user to change the start, stop,
+	  speed, ifdown, and stampfile settings at runtime.  This closes a
+	  Debian wishlist bug [5].
+	  Note that, in order to have the command line options overwrite the
+	  defaults set in the configuration file, we split the command line
+	  parsing code into a new function (parse_cmdline()).  We then merged
+	  main() and wmppp_routine().
+	  We document the new options in the help text and in the man page.  We
+	  also take the opportunity to reformat the help text for the -i option
+	  and add the -geometry option to the man page.
+
+	* Reread configuration file.
+	  Based in part on a patch by Chris Gray [6] to fix Debian bug #50181
+	  [7].
+
+	* Command line options take precedence over configuration files.
+	  Since we now reread the configuration files on occasion, the options
+	  given at the command line could be overwritten.  To avoid this, we
+	  save the command line options and always use them if present.
+
+	[1] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=97509
+	[2] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=328699
+	[3] https://wiki.debian.org/Hardening
+	[4] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=716472
+	[5] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=293839
+	[6] https://bugs.debian.org/cgi-bin/bugreport.cgi?msg=12;filename=wmppp.diff;att=1;bug=50181
+	[7] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=50181
+
+
+
 1.3.0	* Released 980916
 
 	* WMPPP is almost completely rewritten, WMPPP is now
@@ -9,12 +135,12 @@ Version         Description
 	* Added a bytes/sec Speed-O-Meter;
 	* Commandline option for loadgraph/meter update speed;
 	* Added createXBMfromXPM (maskless .xpm);
-	* Geometry support has been added (finaly);
+	* Geometry support has been added (finally);
 	* Some cosmetic changes to the GUI;
 	* Multiple ppp devices support (EXPERIMENTAL!);
 	* getmodemspeed.c now reads /etc/ppp/connect-errors,
 	  and scans for both CARRIER and CONNECT;
-	  
+
 
 
 1.2p1	* Released 980502
@@ -28,72 +154,72 @@ Version         Description
 
         * Updated the WMPPP rc files, again, due to some last
           minute changes in the code, WMPPP's rc files where
-          no longer working properly. 
+          no longer working properly.
 
 
 1.2	* Released 980429
-	
+
 	* Completely revamped the WMPPP & WMiFS GUI :)
-	
+
 	* Added 'forceleft, forcemiddle and forceright'
 	  options in WMiFS for 'real' multiuser systems,
 	  when 'force*' is detected in /etc/wmifsrc the
 	  user settings in ~/.wmifsrc are overridden
-	  (usefull for sites where users may not fiddle
+	  (useful for sites where users may not fiddle
 	   with pppd's options :)
-		
+
 	* WMPPP: Ditto, added 'force' facility here too
-	
+
 	* WMPPP: now correctly redisplays time when killed
           	 and restarted
-	
+
 	* WMPPP: timer now starts to run when the actual
 		 connection is made
-	
+
 	* WMPPP: added BAUD CONNECT value display
-	
+
 	* WMPPP: added 'getmodemspeed', a SUID proggie to
 	         read the CONNECT value from /var/log/messages
-	
+
 	* WMPPP: dropped the config GUI and added an
 	         .wmppprc file instead > motivation to do so:
 	         this way, WMPPP is much more platform and
-	         distribution independant :)
-	
+	         distribution independent :)
+
 	* WMPPP: enhanced the status LED, yellow means
 	         dialing, green means online, red means error
-	
+
 	* WMPPP: added -display commandline option
-	
+
 	* WMPPP: added -t commandline option, default
 	         the timer will display HH:MM, -t will display
 	         MM:SS and switch to HH:MM after 60 minutes
-	
+
 	* WMiFS: added support for all interfaces in
 	         /proc/net/, now all interfaces are supported :)
-	
+
 	* WMiFS: added -display commandline option
-	
+
 	* WMiFS: added -w commandline option, this will
 	         draw the graph in our new 'waveform' look :)
-	
-	* WMiFS: fixed the coredump problems that occured
+
+	* WMiFS: fixed the coredump problems that occurred
 	         on some systems with or without .wmifsrc file
-	         typo's, errors, etc. in the .wmifsrc file are 
+	         typo's, errors, etc. in the .wmifsrc file are
 	         now also being ignored/rejected, the worst
 	         thing that can happen now is that the scripts
 	         do not execute (i.e. luser error) ;-)
-	
+
 	* WMiFS: when monitoring a ppp interface, bytes
 	         are used to draw the graph, otherwise packets
-	
+
 	* WMiFS: made the RX/TX/Status LED box identical
 	         to the one in WMPPP, the right LED is the status
 	         LED, green means interface is working, red means
 	         error (interface down, NIC broken, etc.)
-	
 
-1.1		- Released 980407 
+
+1.1		- Released 980407
 		- Added WMiFS, the no button more stats version
 		- All ppp/eth load graphs are now autoscaling
 		- Autosensing of all active ppp/eth interfaces
@@ -115,7 +241,7 @@ Version         Description
 		  Bugfixes
 
 1.0pre6		- Not released, developers release
-		  Redesigned WMPPP's dock.app GUI	
+		  Redesigned WMPPP's dock.app GUI
 		  Added failsave Yes/No disconnect
 		  requester
 		  Some code cleaning

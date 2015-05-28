@@ -1,0 +1,112 @@
+wmcdplay - A cd player designed for WindowMaker
+Copyright (C) 1998  Sam Hawker <shawkie@geocities.com>
+This software comes with ABSOLUTELY NO WARRANTY
+This software is free software, and you are welcome to redistribute it
+under certain conditions
+See the COPYING file for details.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+THE AUTHOR:
+===========
+
+Sam Hawker
+shawkie@geocities.com
+http://www.geocities.com/SiliconValley/Vista/2471/
+
+
+INSTALLING:
+===========
+
+autoreconf -i
+./configure
+make
+make install
+
+TRACK SELECTION:
+================
+
+Release 0.6 introduced track selection.
+
+Actually, track selection is a slightly more logical version of the random/repeat
+functions found in Creative Labs' SB16 software suite for win95.
+
+The major change is that the previous releases just played from current position
+to the end of the cd.
+Now we play a single track, and when you set the track selection mode, you just
+tell the cd player what to do at the end of the track. Here are the options:
+0    None     - just stop
+1    Next     - play next (audio) track (stop if end of cd)
+2    Repeat   - play this track again
+3    RepeatCD - play next (audio) track (start from first track if end of cd)
+4    Random   - select an audio track at random and play it
+
+The led display symbols for the modes are now part of the artwork file.
+The mode defaults to Next, but can be changed with the "-t track_selection" command
+line argument, or by clicking on the track selection mode led display.
+
+The main consequence of this approach is that when using Random, you will
+probably here a track twice before every track on the cd has been played once.
+(Most cd players have a playlist listing all tracks in a randomized order)
+Also, wmcdplay will always begin with track 1.
+Furthermore, the Next and Prev buttons will always move through track numbers on the
+cd (rather than, for instance, selecting random tracks).
+
+
+AFTERSTEP USERS:
+================
+(thanks to tygris@erols.com)
+
+This release includes in a new command line option (actually, its "-a"
+and artwork files are now loaded with "-f artwork_file").
+The effect this has is to enable shape support (it implies "-s"), and
+to reduce the size of the window to 56x56 pixels.
+The "-position position" option has also been added, so you can push
+wmcdplay off the edge of the screen while it gets swallowed.
+To put wmmount in your Wharf, add the following line in the appropriate
+part of your .steprc
+
+*Wharf wmmount nil MaxSwallow "wmmount" wmmount -a -position -0-0 &
+
+It is also possible (by editing and recompiling the afterstep sources),
+to make Wharf handle the new 56x56 pixel window properly - yes, I add
+an option to use a 56x56 pixel window, even though the AfterStep Wharf
+really wants 55x57 pixel ones.
+
+I am told (by tygris@erols.com):
+
+"Locate Wharf.c (or is it Wharf.cc?)  Should be in
+AfterStep-1.0/modules/Wharf.  Locate this:
+
+            if (Buttons[button].maxsize) {
+              Buttons[button].icons[0].w = 55;
+              Buttons[button].icons[0].h = 57;
+            }
+
+and change the 55 and 57 to 56's.  Save and compile."
+
+
+BUILD PROBLEMS:
+===============
+
+You may have trouble linking wmmount with the compiler supplied on some
+recent distributions (eg. Debian 2.0 & RedHat 5.1).
+It can be made to build by adding the following line to the top of the
+Imakefile, before executing xmkmf:
+
+CC = c++
+
+I am not sure of the effect this has on memory usage, etc.

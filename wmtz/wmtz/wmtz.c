@@ -69,7 +69,7 @@ typedef struct
 /*
  * Global variables
  */
-timezone_t    zone[6]; 
+timezone_t    zone[6];
 double        longitude = 0.0;
 double        latitude = 0.0;
 static        struct tm *clk;
@@ -98,7 +98,7 @@ int    ReadConfigString(FILE *fp, char *setting, char *value);
 int    Read_Config_File(char *filename);
 void   range(double *val, double ran);
 void   siderealTime(double jde, int *result, int mode);
-double julianDay(int year, int month, double day, double hour, 
+double julianDay(int year, int month, double day, double hour,
                  double minute, double second, int julian);
 int    calendarDate(double jd, int *year, int *month, double *day);
 int    handleJD(void);
@@ -112,7 +112,7 @@ double jdn(time_t curtime);
 \*****************************************************************************/
 int main(int argc, char *argv[]) {
 
-  int		i; 
+  int		i;
   char    *envbuf;
 
   /* Store away the executable name for error messages */
@@ -129,14 +129,14 @@ int main(int argc, char *argv[]) {
   }
   else
   {
-    // Set originalTZ to TZ erase TZ env. 
+    // Set originalTZ to TZ erase TZ env.
     (void) sprintf(originalTZ, "TZ");
   }
-	
+
   /* Parse Command Line */
   for (i=1; i<argc; i++) {
     char *arg = argv[i];
-    
+
     if (*arg=='-') {
       switch (arg[1]) {
       case 'd' :
@@ -171,7 +171,7 @@ int main(int argc, char *argv[]) {
 	  {
 	    uconfig_file = strdup(argv[i+1]);
             if (uconfig_file == NULL)
-                errH(1, 1, "strdup");  
+                errH(1, 1, "strdup");
 	    i++;
 	  }
 	break;
@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
   month[3] = "APR";  month[4] = "MAY";  month[5] = "JUN";
   month[6] = "JUL";  month[7] = "AUG";  month[8] = "SEP";
   month[9] = "OUT";  month[10] = "NOV";  month[11] = "DEC";
-  
+
   week_day[0] = "SUNDAY   ";
   week_day[1] = "MONDAY   ";
   week_day[2] = "TUESDAY  ";
@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
   week_day[4] = "THURSDAY ";
   week_day[5] = "FRIDAY   ";
   week_day[6] = "SATURDAY ";
-  
+
   wmtz_routine(argc, argv);
 
   return 0;
@@ -230,18 +230,18 @@ void wmtz_routine(int argc, char **argv)
     if (mono)
     {
 	fprintf(stderr, "Starting monochrome version.\n");
-	createXBMfromXPM(wmtz_mask_bits, wmtz_mono_xpm, 
+	createXBMfromXPM(wmtz_mask_bits, wmtz_mono_xpm,
 			 wmtz_mask_width, wmtz_mask_height);
-    
-	openXwindow(argc, argv, wmtz_mono_xpm, wmtz_mask_bits, 
+
+	openXwindow(argc, argv, wmtz_mono_xpm, wmtz_mask_bits,
 		    wmtz_mask_width, wmtz_mask_height);
     }
     else
     {
-	createXBMfromXPM(wmtz_mask_bits, wmtz_master_xpm, 
+	createXBMfromXPM(wmtz_mask_bits, wmtz_master_xpm,
 			 wmtz_mask_width, wmtz_mask_height);
-    
-	openXwindow(argc, argv, wmtz_master_xpm, wmtz_mask_bits, 
+
+	openXwindow(argc, argv, wmtz_master_xpm, wmtz_mask_bits,
 		    wmtz_mask_width, wmtz_mask_height);
     }
 
@@ -257,7 +257,7 @@ void wmtz_routine(int argc, char **argv)
     if (uconfig_file != NULL)
     {
         /* user-specified config file */
-        fprintf(stderr, "Using user-specified config file '%s'.\n", 
+        fprintf(stderr, "Using user-specified config file '%s'.\n",
                 uconfig_file);
         config_file = strdup(uconfig_file);
         free(uconfig_file);
@@ -281,16 +281,16 @@ void wmtz_routine(int argc, char **argv)
                 errH(1, 1, "malloc");
 
             sprintf(config_file, "/etc/wmtzrc");
-            
+
             fprintf(stderr, "Using /etc/wmtzrc as config file.\n");
-        
+
             Read_Config_File(config_file);
         }
     }
 
     RedrawWindow();
     prevtime = time(0) - 1;
-    
+
     while (1)
     {
 	waitpid(0, NULL, WNOHANG);
@@ -314,7 +314,7 @@ void wmtz_routine(int argc, char **argv)
             /* Display empty line */
             if (strncmp( zone[j].label, "xxx", 3) == 0 )
 	    {
-              BlitString("        ", 5, (11*(j-1)) + 5); 
+              BlitString("        ", 5, (11*(j-1)) + 5);
 	    }
 
 	    /* Display local day/mon/year */
@@ -324,7 +324,7 @@ void wmtz_routine(int argc, char **argv)
 	      while(clk->tm_year>99) clk->tm_year-=100;
 	      snprintf(blitstr, STRSIZE,"%s %02d.%02d",
                        month[clk->tm_mon],clk->tm_mday,clk->tm_year);
-              BlitString(blitstr, 5, (11*(j-1)) + 5);  
+              BlitString(blitstr, 5, (11*(j-1)) + 5);
 	    }
 
 	    /* Display local weekday */
@@ -332,7 +332,7 @@ void wmtz_routine(int argc, char **argv)
 	    {
 	      clk = localtime(&curtime);
 	      snprintf(blitstr, STRSIZE,"%s",week_day[clk->tm_wday]);
-	      BlitString(blitstr, 4, (11*(j-1)) + 5);  
+	      BlitString(blitstr, 4, (11*(j-1)) + 5);
 	    }
 
 	    /* Display more precise internet time */
@@ -358,7 +358,7 @@ void wmtz_routine(int argc, char **argv)
             else if (strncmp( zone[j].label, "LMST", 3) == 0 )
 	    {
               clk = gmtime(&curtime);
-              jd = jdn(curtime); 
+              jd = jdn(curtime);
               siderealTime( jd, sid, LMST );
               snprintf(blitstr, STRSIZE, "%s%02i.%02i","LST:", sid[0], sid[1]);
               BlitString(blitstr, 5, (11*(j-1)) + 5);
@@ -368,7 +368,7 @@ void wmtz_routine(int argc, char **argv)
             else if (strncmp( zone[j].label, "GMST", 3) == 0 )
 	    {
               clk = gmtime(&curtime);
-              jd = jdn(curtime); 
+              jd = jdn(curtime);
               siderealTime( jd, sid, GMST );
               snprintf(blitstr, STRSIZE, "%s%02i.%02i","GST:", sid[0], sid[1]);
               BlitString(blitstr, 5, (11*(j-1)) + 5);
@@ -379,7 +379,7 @@ void wmtz_routine(int argc, char **argv)
 	    {
 	      clk = localtime(&curtime);
 	      strncpy(buf, tzname[0], 3);
-	      
+
               for (k=0; k<3; k++)
                 if (buf[k] == 0)
                   buf[k] = ' ';
@@ -401,7 +401,7 @@ void wmtz_routine(int argc, char **argv)
 	      clk = localtime(&curtime);
 
 	      strncpy(buf, tzname[0], 3);
-	      
+
               for (k=0; k<3; k++)
                 if (buf[k] == 0)
                   buf[k] = ' ';
@@ -409,7 +409,7 @@ void wmtz_routine(int argc, char **argv)
               buf[3] = ':';
               buf[4] = 0;
 
-              snprintf(blitstr, STRSIZE, "%s%02i.%02i", buf, 
+              snprintf(blitstr, STRSIZE, "%s%02i.%02i", buf,
 		       clk->tm_hour, clk->tm_min);
               BlitString(blitstr, 5, (11*(j-1)) + 5);
 
@@ -418,11 +418,11 @@ void wmtz_routine(int argc, char **argv)
 	    }
 
             /* Display time in specified time zone without TZ env. var. */
-            else 
+            else
             {
  	      clk = gmtime(&curtime);
               strncpy(buf, zone[j].label, 3);
-                       
+
               for (k=0; k<3; k++)
                 if (buf[k] == 0)
                   buf[k] = ' ';
@@ -431,16 +431,16 @@ void wmtz_routine(int argc, char **argv)
               buf[4] = 0;
 
               hour = clk->tm_hour - zone[j].diff;
-              if (hour > 23 ) 
+              if (hour > 23 )
 		hour -= 24;
-              else if (hour < 0 ) 
+              else if (hour < 0 )
 		hour += 24;
 
 	      /* Print Label */
               snprintf(blitstr, STRSIZE, "%s%02i.%02i",buf,hour,clk->tm_min);
               BlitString(blitstr, 5, (11*(j-1)) + 5);
 	    }
-          }                                     
+          }
         }
         RedrawWindow();
 
@@ -480,10 +480,10 @@ void wmtz_routine(int argc, char **argv)
 	    default:
 		   break;
 	  }
-        }  
+        }
 
         usleep(10000);
-    }        
+    }
 }
 
 
@@ -498,7 +498,7 @@ void handleTheMenu(int but_stat)
     switch( but_stat )
       {
 	case 0:
-	    execCommand(ABOUT); 
+	    execCommand(ABOUT);
 	    break;
 	case 1:
 	    break;
@@ -506,8 +506,8 @@ void handleTheMenu(int but_stat)
 	    /* Figure out what editor to use */
 	    if ( defedit == NULL )
 		{
-		    ed = getenv("XEDITOR"); 
-		    if ( ed == NULL ) 
+		    ed = getenv("XEDITOR");
+		    if ( ed == NULL )
 			ed = "xedit";
 		}
 	    else
@@ -554,15 +554,15 @@ int ReadConfigString(FILE *fp, char *setting, char *value)
 
     snprintf(str,1024, "%s=", setting);
     slen = strlen(str);
-    
+
     fseek(fp, 0, SEEK_SET);
 
     while ( !feof(fp) )
     {
-        
+
         if (!fgets(buf, 512, fp))
 	  break;
-        
+
         len = strlen(buf);
 
         /* strip linefeed */
@@ -574,7 +574,7 @@ int ReadConfigString(FILE *fp, char *setting, char *value)
         if ( strncmp(buf, str, strlen(str)) == 0)
         {
             /* found our setting */
-	  
+
 	  for(i=0; i!=slen; i++)
 	    if ( buf[i] == '=' )
 	      {
@@ -583,7 +583,7 @@ int ReadConfigString(FILE *fp, char *setting, char *value)
 		return 1;
 	      }
         }
-    }    
+    }
     return 0;
 }
 
@@ -687,7 +687,7 @@ void BlitString(char *name, int x, int y)
     for (i=0; name[i]; i++)
     {
 
-        c = toupper(name[i]); 
+        c = toupper(name[i]);
 	if (c >= 'A' && c <= 'Z')
 	{   /* its a letter */
 	  c -= 'A';
@@ -695,7 +695,7 @@ void BlitString(char *name, int x, int y)
 	  k += CHAR_WIDTH;
         }
         else if ( c >= '0' && c <= ':')
-        {   
+        {
 	  c -= '0';
 	  copyXPMArea(c * CHAR_WIDTH, 64, CHAR_WIDTH, 8, k, y);
 	  k += CHAR_WIDTH;
@@ -706,7 +706,7 @@ void BlitString(char *name, int x, int y)
 	  k += 4;
 	}
 	else if (c=='.')
-	  { 
+	  {
 	  copyXPMArea(115, 64, 4, 8, k, y);
 	  k += 4;
 	}
@@ -716,7 +716,7 @@ void BlitString(char *name, int x, int y)
 	  k += CHAR_WIDTH;
 	}
 	else /* print a ' ' */
-	{  
+	{
 	  copyXPMArea(120, 64, CHAR_WIDTH, 8, k, y);
 	  k += CHAR_WIDTH;
 	}
@@ -733,7 +733,7 @@ void usage(void)
   fprintf(stderr, "See ~/.wmtzrc or /etc/wmtzrc for configuration.\n\n");
   fprintf(stderr, "Usage:\n");
   fprintf(stderr, "    -display <display name>\n");
-  fprintf(stderr, "    -e <editor>               use specified editor\n");   
+  fprintf(stderr, "    -e <editor>               use specified editor\n");
   fprintf(stderr, "    -geometry +XPOS+YPOS      initial window position\n");
   fprintf(stderr, "    -jd                       Julian<->Date conversion\n");
   fprintf(stderr, "    -c <filename>             use specified config file\n");
@@ -759,8 +759,8 @@ void printversion(void)
 void range (double *val, double ran)
 {
       *val -= ran*floor(*val/ran);
-       
-      if (*val < 0) 
+
+      if (*val < 0)
           *val += ran;
 }
 
@@ -788,7 +788,7 @@ void siderealTime( double jde, int *result, int mode )
    ts = 280.46061837 + 360.98564736629 * ( jde - 2451545.0 )
         + 0.000387933 * t2 - t3/38710000.0;
 
-   range( &ts, 360.0 ); 
+   range( &ts, 360.0 );
    ts /= 15.0;
 
    /* If local time add one hour for every 15 degree in longitude */
@@ -806,7 +806,7 @@ void siderealTime( double jde, int *result, int mode )
 /*****************************************************************************\
 |* julianDay - Gives JD from date.                                           *|
 \*****************************************************************************/
-double julianDay( int year, int month, double day, double hour, 
+double julianDay( int year, int month, double day, double hour,
                   double minute, double second, int julian )
 {
    int a, b, c, d;
@@ -847,17 +847,17 @@ int calendarDate( double jd, int *year, int *month, double *day )
 
    if ( jd < 0 )
       return 0;
-    
+
    jd += 0.5;
    ij = floor(jd);
    frac = jd - ij;
 
-   if ( ij < 2299161 ) 
+   if ( ij < 2299161 )
    {
       a = ij;
    }
-   else 
-   { 
+   else
+   {
       alfa = floor((ij - 1867216.25)/36524.25);
       beta = floor(alfa/4);
       a = ij + 1 + alfa - beta;
@@ -875,7 +875,7 @@ int calendarDate( double jd, int *year, int *month, double *day )
        *month = e - 1;
    else if (e == 14 || e == 15)
        *month = e - 13;
-   else 
+   else
        return 0;
 
    if (*month > 2)
@@ -884,7 +884,7 @@ int calendarDate( double jd, int *year, int *month, double *day )
        *year = c - 4715;
    else
        return 0;
-  
+
    return 1;
 }
 
@@ -905,7 +905,7 @@ int handleJD( void )
   {
      printf("Enter UT date with time (YYYY,MM,DD,hh:mm:ss): ");
      scanf("%d,%d,%d,%d:%d:%d", &y, &m, &d, &h, &min, &sec);
-     printf("\nJulian Day: %f\n", julianDay( y, m, d, h, min, sec, 0 ) ); 
+     printf("\nJulian Day: %f\n", julianDay( y, m, d, h, min, sec, 0 ) );
   }
   else if (conv == 2)
   {
@@ -916,7 +916,7 @@ int handleJD( void )
        printf("Conversion error! Negative JD not allowed.\n");
        return 0;
      }
-       
+
      printf("\nGregorian date: %d-%2.2d-%2.4f\n", y, m, day);
   }
   else
@@ -940,15 +940,15 @@ void errH(int printErrno, int exitCode, const char *msg, ...)
     buf[0] = 0;
     strcat(buf, pname);
     strcat(buf, ": ");
-    
+
     va_start(arg, msg);
     vsprintf(buf+strlen(buf), msg, arg);
     if (printErrno)
         sprintf(buf+strlen(buf), ": %s", strerror(error));
     strcat(buf, "\n");
-    fflush(stdout); 
+    fflush(stdout);
     fputs(buf, stderr);
-    fflush(NULL); 
+    fflush(NULL);
     va_end(arg);
 
     if ( exitCode )

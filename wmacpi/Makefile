@@ -1,28 +1,75 @@
 # set options.  pick one, acpi or apm.  comment out the other one.  don't
 # uncomment both, bad things will happen :)
 
-OPT	= -O3 -DACPI
-#OPT	= -O3 -DAPM
+OPT	:= -O2
+
+# uncomment this to build the command line acpi tool
+BUILD_CLI = 1
 
 # uncomment this to make wmacpi use less system colors (looks uglier too)
 #OPT	+= -DLOW_COLOR
 
 # debugging options (don't bother with these)
-#OPT	= -pg -g -DPRO -DACPI
+#OPT	= -pg -g
 
-CC	= gcc
-CFLAGS	= $(OPT) -Wall -ansi -I/usr/X11R6/include
-LDFLAGS = $(OPT) -L/usr/X11R6/lib -lX11 -lXpm -lXext
+CC	:= gcc
+CFLAGS	+= $(OPT) -Wall -W -g -ansi
+LDFLAGS += $(OPT) -lX11 -ldockapp
 
-SRCS	= wmacpi.c libapm.c libacpi.c
-OBJS	= wmacpi.o libapm.o libacpi.o
+WMSRC	:= wmacpi.c libacpi.c
+HEADERS := libacpi.h wmacpi.h
+targets := wmacpi
+doc_targets := wmacpi.1
 
-all:	wmacpi
+ifdef BUILD_CLI
+targets += wmacpi-cli
+doc_targets += wmacpi-cli.1
+endif
 
-wmacpi:	$(OBJS)
+PREFIX := /usr/local
+
+all: $(targets)
+
+# build the list of object files
+WMOBJ := $(patsubst %.c,%.o,$(filter %.c,$(WMSRC)))
+
+# include per-file dependencies
+-include $(WMOBJ:.o=.d)
+
+wmacpi:	$(WMOBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+# for the Debian package, we want to make building the command line tools
+# optional. So, we hide all the necessary stuff here . . .
+ifdef BUILD_CLI
+CLSRC := wmacpi-cli.c libacpi.c
+CLOBJ := $(patsubst %.c,%.o,$(filter %.c,$(CLSRC)))
+-include $(CLOBJ:.o=.d)
+
+wmacpi-cli: $(CLOBJ)
+	$(CC) $(LDFLAGS) -o $@ $^
+endif
+
+# build per-file dependencies - note that -MM may not be supported
+# in gcc versions older than 2.95.4, but most likely is.
+%.d: %.c
+	gcc -MM $(CFLAGS) $< > $@
 
 clean:
-	rm -f *.o *~ wmacpi trace *.out *.bb *.bbg
+	rm -f TAGS *.o *~ trace *.out *.bb *.bbg
+	rm -f *.d $(targets)
+
+clean-all: clean
 
 install:
-	install -Dm755 wmacpi $(DESTDIR)/usr/bin/wmacpi
+	@list="$(targets)"; for f in $$list; do \
+		echo "install -Dm755 $$f $(DESTDIR)$(PREFIX)/bin/$$f"; \
+		install -Dm755 $$f $(DESTDIR)$(PREFIX)/bin/$$f; \
+	done
+	@list="$(doc_targets)"; for f in $$list; do \
+		echo "install -Dm644 $$f $(DESTDIR)$(PREFIX)/share/man/man1/$$f"; \
+		install -Dm644 $$f $(DESTDIR)$(PREFIX)/share/man/man1/$$f; \
+	done
+
+tags:
+	etags $(WMSRC) $(CLSRC) $(HEADERS)

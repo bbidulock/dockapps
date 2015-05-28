@@ -1,11 +1,11 @@
-/* Generic single linked list to keep various information 
+/* Generic single linked list to keep various information
    Copyright (C) 1993, 1994 Free Software Foundation, Inc.
 
 
 Author: Kresten Krab Thorup
 
 Many modifications by Alfredo K. Kojima
- 
+
 
 This file is part of GNU CC.
 
@@ -38,7 +38,7 @@ Boston, MA 02110-1301 USA.  */
 
 /* Return a cons cell produced from (head . tail) */
 
-INLINE LinkedList* 
+LinkedList*
 list_cons(void* head, LinkedList* tail)
 {
   LinkedList* cell;
@@ -51,7 +51,7 @@ list_cons(void* head, LinkedList* tail)
 
 /* Return the length of a list, list_length(NULL) returns zero */
 
-INLINE int
+int
 list_length(LinkedList* list)
 {
   int i = 0;
@@ -63,10 +63,10 @@ list_length(LinkedList* list)
   return i;
 }
 
-/* Return the Nth element of LIST, where N count from zero.  If N 
+/* Return the Nth element of LIST, where N count from zero.  If N
    larger than the list length, NULL is returned  */
 
-INLINE void*
+void*
 list_nth(int index, LinkedList* list)
 {
   while(index-- != 0)
@@ -81,10 +81,10 @@ list_nth(int index, LinkedList* list)
 
 /* Remove the element at the head by replacing it by its successor */
 
-INLINE void
+void
 list_remove_head(LinkedList** list)
 {
-  if (!*list) return;  
+  if (!*list) return;
   if ((*list)->tail)
     {
       LinkedList* tail = (*list)->tail; /* fetch next */
@@ -101,7 +101,7 @@ list_remove_head(LinkedList** list)
 
 /* Remove the element with `car' set to ELEMENT */
 /*
-INLINE void
+void
 list_remove_elem(LinkedList** list, void* elem)
 {
   while (*list)
@@ -112,11 +112,11 @@ list_remove_elem(LinkedList** list, void* elem)
     }
 }*/
 
-INLINE LinkedList *
+LinkedList *
 list_remove_elem(LinkedList* list, void* elem)
 {
     LinkedList *tmp;
-    
+
     if (list) {
 	if (list->head == elem) {
 	    tmp = list->tail;
@@ -132,7 +132,7 @@ list_remove_elem(LinkedList* list, void* elem)
 
 /* Return element that has ELEM as car */
 
-INLINE LinkedList*
+LinkedList*
 list_find(LinkedList* list, void* elem)
 {
   while(list)
@@ -146,7 +146,7 @@ list_find(LinkedList* list, void* elem)
 
 /* Free list (backwards recursive) */
 
-INLINE void
+void
 list_free(LinkedList* list)
 {
   if(list)
@@ -158,7 +158,7 @@ list_free(LinkedList* list)
 
 /* Map FUNCTION over all elements in LIST */
 
-INLINE void
+void
 list_mapcar(LinkedList* list, void(*function)(void*))
 {
   while(list)

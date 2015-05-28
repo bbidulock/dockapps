@@ -19,7 +19,7 @@ OBJS   = wmWeather.o \
 all:	wmWeather.o wmWeather
 
 wmWeather.o: wmWeather_master.xpm wmWeather_mask.xbm
-wmWeather:	$(OBJS) 
+wmWeather:	$(OBJS)
 	$(CC) $(CFLAGS) $(SYSTEM) -o wmWeather $^ $(INCDIR) $(LIBDIR) $(LIBS)
 
 clean:

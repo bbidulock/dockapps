@@ -1,9 +1,9 @@
 CC     = gcc
-INCLUDES  = `pkg-config --cflags gtk+-2.0` -I. 
+INCLUDES  = `pkg-config --cflags gtk+-2.0` -I.
 LFLAGS = `pkg-config --libs gtk+-2.0`
 
 # for BSD
-#INCLUDES = `gtk12-config --cflags` -I. 
+#INCLUDES = `gtk12-config --cflags` -I.
 #LFLAGS = `gtk12-config --libs`
 X11BASE = /usr/X11R6
 CFLAGS =  $(INCLUDES) -DICON_TYPE=$(ICON_TYPE)
@@ -28,9 +28,9 @@ OBJECTS   = 	wmCalendar.o \
 	$(CC) $(CFLAGS) -D`uname -s` -DHAVE_SYS_TIME_H -c $< -o $*.o $(INCDIR)
 
 
-all:	wmCalendar.o wmCalendar 
+all:	wmCalendar.o wmCalendar
 
-wmCalendar: $(OBJECTS) 
+wmCalendar: $(OBJECTS)
 	 $(CC) $(COPTS)  $(SYSTEM) $(LFLAGS) -o $@ $(OBJECTS) -o wmCalendar $(INCDIR)$(LIBDIR) $(LIBS)
 
 wmCalendar.o: wmCalendar_master.xpm   wmCalendar_master2.xpm

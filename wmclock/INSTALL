@@ -1,0 +1,49 @@
+____________________________
+|O|  Installing wmclock  |X|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The procedure for installing wmclock is relatively simple.
+
+  (1) Create the `configure' script:
+
+          autoreconf -i
+
+  (2) Run the `configure' script to configure the language support that
+      is built into wmclock.  For example:
+
+          ./configure --with-lang=english
+
+      For a list of the available languages, use:
+
+          ./configure --help
+
+      Note that if no language it given, `english' is chosen as the default.
+
+  (3) Compile:
+
+          make
+
+      You may specify the C compiler to use and additional command-line
+      options for the C compiler using the `CC' and `CFLAGS'
+      variables, respectively.  For example:
+
+          make CC=clang CFLAGS='-O4 -march=pentium2'
+
+
+  (4) Test wmclock:
+
+          ./wmclock
+
+      (If it appears to work as expected, *don't dock it*.  Wait until
+      after you've installed it).
+
+  (5) Install:
+
+          su
+          make install
+
+  (6) You're done.  See the README file accompanying this one for
+      instructions on installing wmclock into Window Maker's dock.
+
+--
+Window Maker Developers Team <wmaker-dev@lists.windowmaker.org>

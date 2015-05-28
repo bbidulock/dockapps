@@ -52,7 +52,7 @@ typedef struct _mbox_t {
 	int UnreadMsgs;				/* New (unread) messages in mailbox */
 	int OldMsgs;
 	int OldUnreadMsgs;
-	char TextStatus[10];		/* if set to a string, toupper() and blit 
+	char TextStatus[10];		/* if set to a string, toupper() and blit
 								 * that string. instead of a message count */
 	int blink_stat;				/* blink digits flag-counter */
 	int debug;					/* debugging status */
@@ -76,7 +76,7 @@ typedef struct _mbox_t {
 		} maildir;
 		struct {
 			char password[BUF_SMALL];
-			char userName[BUF_SMALL];
+			char userName[BUF_BIG];
 			char serverName[BUF_BIG];
 			int serverPort;
 			int localPort;
