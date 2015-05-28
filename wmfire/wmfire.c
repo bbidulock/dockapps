@@ -171,7 +171,7 @@ int startload(struct _loadstuff *l, char *program) {
 	l->show[0] = 0;
 
 	return 0;
-	
+
  broken:
  	pclose(l->file);
 	return 1;
@@ -195,7 +195,7 @@ void getload(struct _loadstuff *l) {
 			got = 1;
 		} else break;
 	}
-	
+
 	if (got) {
 		/* <float>\t<what to show>[\t<undefined...>]\n */
 		if (!(t = strtok(buffer, "\t\n"))) return;
@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
 
 	char *load_prog = "fireload_cpu";
 	struct _loadstuff loads;
-	
+
 	XEvent event;
 	char *errchar;
 
@@ -273,7 +273,7 @@ int main(int argc, char *argv[]) {
 					exit(-1);
 				}
 				break;
-				
+
 			case 'P':
 				load_prog = optarg;
 				break;

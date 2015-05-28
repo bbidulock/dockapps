@@ -45,7 +45,7 @@ float getheight(char *scanstring, char *filename) {
 	numf = atof(num);
 
 	fclose(f);
-	
+
 	return numf;
 }
 
@@ -58,8 +58,8 @@ char *showfmt(float num) {
 	char *ext[] = { "", "K", "M", "G" };
 	int extn;
 
-	for (extn = 0; (num >= 1024) && extn < 3; extn++, num /= 1024) ; 
-	snprintf(show, 64, "%.1f%s", num, ext[extn]);	
+	for (extn = 0; (num >= 1024) && extn < 3; extn++, num /= 1024) ;
+	snprintf(show, 64, "%.1f%s", num, ext[extn]);
 
 	return show;
 }
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (!filename || !scanstr || !(max - min)) {
-		do_help(argv[0]);		
+		do_help(argv[0]);
 		exit(-1);
 	}
 

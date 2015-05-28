@@ -3,7 +3,7 @@ PREFIX = $(DESTDIR)/usr/local
 
 CPPFLAGS = -I -g3 -DINSTALL_PREFIX=\"$(PREFIX)\"
 
-LDFLAGS = 
+LDFLAGS =
 X_CPPFLAGS = `gtk-config --cflags` `gdk-pixbuf-config --cflags`
 X_LDFLAGS = `gtk-config --libs` `gdk-pixbuf-config --libs`
 
@@ -36,7 +36,7 @@ $(PRG): $(OBJS) configure.mk
 	$(CXX) -o $(PRG) $(LDFLAGS) $(OBJS)
 
 depend:
-	$(CXX) -MM $(CPPFLAGS) $(SRCS) 1>.depend 
+	$(CXX) -MM $(CPPFLAGS) $(SRCS) 1>.depend
 
 clean:
 	@-rm $(OBJS) $(PRG) configure.mk
@@ -46,25 +46,25 @@ tags: $(SRCS) $(HDRS)
 
 configure.mk:
 	./configure
-    
+
 README: index.html
 	lynx -dump index.html >README
 
 .PHONY: tbz
-tbz: 
+tbz:
 	-rm -rf tmp
 	mkdir tmp tmp/$(PRG)
 	cp -fr $(DISTFILES) pixmaps tmp/$(PRG)
 	cd tmp && tar -cjf ../$(PRG)-$(PRGVER).tar.bz2 $(PRG)
 	rm -rf tmp
 
-sf: 
+sf:
 	# upload project to my sf page
 	scp index.html attis74@wmspaceclock.sourceforge.net:/home/groups/w/wm/wmspaceclock/htdocs/
 	@echo "DONT FORGET TO CREATE/EDIT PROJECT FILE RELEASES!!!"
 
-	
-install: 
+
+install:
 	install -s -m 755 $(PRG) $(PREFIX)/bin
 	install -d $(PREFIX)/share/$(PRG)
 	install -d $(PREFIX)/share/$(PRG)/pixmaps

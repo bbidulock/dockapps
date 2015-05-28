@@ -29,28 +29,28 @@
 
 		<h1>Description</h1>
 		<p>
-			wmspaceclock (or spaceclock for short) is an antialiased analog clock for 
+			wmspaceclock (or spaceclock for short) is an antialiased analog clock for
 			the Window Maker dock to show the current local time. wmspaceclock falls under
 			the GPL (GNU General Public License)
 		</p>
 		<p>
 			I wrote this program because I haven't found a nice <b>antialiased</b> analog clock
-			for my <a href="http://fluxbox.sf.net">fluxbox</a> slit. After searching the net I found 
-			only pclock and astime, but neither had the cool antialiasing hands of 
-			asclock_applet shipped with GNOME. I found the AfterStep version of the 
-			GNOME applet, but it didn't have that nice antialiased theme I wanted so much. 
+			for my <a href="http://fluxbox.sf.net">fluxbox</a> slit. After searching the net I found
+			only pclock and astime, but neither had the cool antialiasing hands of
+			asclock_applet shipped with GNOME. I found the AfterStep version of the
+			GNOME applet, but it didn't have that nice antialiased theme I wanted so much.
 		</p>
 		<p>
 			The clock I liked most (though I wouldn't really use it) was wmfishtime by
-			timecop &lt;timecop at japan dot co dot jp&gt;. I had a look at its source code, this was 
+			timecop &lt;timecop at japan dot co dot jp&gt;. I had a look at its source code, this was
 			the one which inspired me to write my own clock applet. pclock was the second
 			on my list, it lived in my fluxbox slit until I finished spaceclock. Also
 			I have stolen some background pixmaps from the pclock distribution.
 		</p>
 		<p>
-			Spaceclock uses a simple algorithm utilizing a subpixel mask to draw 
+			Spaceclock uses a simple algorithm utilizing a subpixel mask to draw
 			antialiased polygons. It could be enhanced further both in memory usage and
-			output quality with a smarter algorithm, but the currently implemented approach 
+			output quality with a smarter algorithm, but the currently implemented approach
 			seem to be acceptable for me.
 		</p>
 		<p>
@@ -59,7 +59,7 @@
 			"space" . Also, it is very useful to fill the unused space on your screen...
 		</p>
 		<hr>
-		
+
 		<h1>Features</h1>
 		<ul>
 			<li>Window Maker dock applet (may be used with BlackBox of FluxBox as well)
@@ -75,9 +75,9 @@
 		<h1>Requirements</h1>
 		<ul>
 			<li>gdk-pixbuf is required to compile spaceclock
-			<li><a href="http://www.stlport.org">STLport</a> or other high performance 
-			   STL implementation <b>highly recommended</b> (the version 
-			   compiled with STLport uses 20 times less CPU time on my Mandrake 8.2 system 
+			<li><a href="http://www.stlport.org">STLport</a> or other high performance
+			   STL implementation <b>highly recommended</b> (the version
+			   compiled with STLport uses 20 times less CPU time on my Mandrake 8.2 system
 			   with gcc 3.0.4)
 		</ul>
 		<hr>
@@ -89,7 +89,7 @@
 	of throwing a never catched exception. Config file parser may have to
 	be rewritten to fix this.
 		<li>
-	Segfault may happen if hands are too long and they are drawn outside 
+	Segfault may happen if hands are too long and they are drawn outside
 	of the 64x64 pixel applet area. Some checking may be approriate in
 	the rasterizer algorithm.
 		<li>

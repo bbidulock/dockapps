@@ -1,6 +1,6 @@
 /*  BubbleMon dockapp 1.2 - Linux specific code
  *  Copyright 2000, 2001 timecop@japan.co.jp
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -126,7 +126,7 @@ int system_memory(void)
 #else
 	mem = fopen("/proc/meminfo", "r");
 	fgets(shit, 2048, mem);
-	
+
 	fscanf(mem, "%*s %Ld %Ld %Ld %Ld %Ld %Ld", &aa, &ab, &ac,
 	       &ad, &ae, &af);
 	fscanf(mem, "%*s %Ld %Ld", &ag, &ah);

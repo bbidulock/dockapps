@@ -10,8 +10,8 @@
 class ClockConfig
 {
 public:
-	class error 
-	{ 
+	class error
+	{
 	public:
 		std::string token;
 		error(std::string s) : token(s) { }

@@ -1,5 +1,5 @@
 /*  BubbleMon dockapp 1.2
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -24,7 +24,7 @@
 
 /* CPU load alpha-blending: smaller values = ligher text
  * minblend = mouseout
- * maxblend = mousein 
+ * maxblend = mousein
  * min = 0
  * max = 128 */
 #if defined(ENABLE_CPU) || defined(ENABLE_MEMSCREEN)

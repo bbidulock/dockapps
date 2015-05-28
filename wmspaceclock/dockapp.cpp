@@ -14,7 +14,7 @@
  * You did not receive a copy of the GNU General Public License along with
  * this program; chances are, you already have at least 10 copies of this
  * license somewhere on your system.  If you still want it, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, 
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
  * MA 02111-1307, USA.
  *
  * History :
@@ -100,11 +100,11 @@ DockApp::DockApp(int argc, char** argv, const char *name, GdkPixbuf* master) thr
     //pixmap = gdk_pixmap_create_from_xpm_d(win, &(mask), 0, master_xpm);
 
     gdk_pixbuf_render_pixmap_and_mask(master, &pixmap, &mask, 128);
-    
+
     pixmap = gdk_pixmap_new(win, attr.width, attr.height, -1);
-    //gdk_pixbuf_render_to_drawable(master, pixmap, gc, 
+    //gdk_pixbuf_render_to_drawable(master, pixmap, gc,
 	    //0, 0, 0, 0, attr.width, attr.height, GDK_RGB_DITHER_NONE, 0, 0);
-    
+
     gdk_window_shape_combine_mask(win, mask, 0, 0);
     gdk_window_shape_combine_mask(iconwin, mask, 0, 0);
 
@@ -118,14 +118,14 @@ DockApp::DockApp(int argc, char** argv, const char *name, GdkPixbuf* master) thr
 
 void DockApp::run()
 {
-    while (true) 
+    while (true)
     {
-	while (gdk_events_pending()) 
+	while (gdk_events_pending())
 	{
 	    GdkEvent* event = gdk_event_get();
-	    if (event) 
+	    if (event)
 	    {
-		switch (event->type) 
+		switch (event->type)
 		{
 		    case GDK_DESTROY:
 			    gdk_exit(0);
@@ -134,7 +134,7 @@ void DockApp::run()
 			    exit(0);
 			    break;
 		    case GDK_BUTTON_PRESS:
-			    // printf("button press\n"); 
+			    // printf("button press\n");
 			    break;
 		    case GDK_ENTER_NOTIFY:
 			    proximity = 1;
@@ -143,7 +143,7 @@ void DockApp::run()
 			    break;
 		    case GDK_LEAVE_NOTIFY:
 			    proximity = 0;
-			    // get fish moving again, but slowly - checking out 
+			    // get fish moving again, but slowly - checking out
 			    for (ch = 0; ch < NRFISH; ch++)
 			    bm.fishes[ch].speed = 1;
 			    break;

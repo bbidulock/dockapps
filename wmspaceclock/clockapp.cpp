@@ -21,8 +21,8 @@ class Vector_add_rotator
 public:
 	Vector_add_rotator(const Vertex& v, double a) : add(v), angle(a) { }
 
-	void operator() (Vertex& v) 
-	{ 
+	void operator() (Vertex& v)
+	{
 		Vertex nv;
 		nv.x = add.x - sin(angle) * v.y - cos(angle) * v.x;
 		nv.y = add.y + cos(angle) * v.y - sin(angle) * v.x;
@@ -106,7 +106,7 @@ public:
 	void draw_hand(const TimeData& td, int idx);
 };
 
-ClockDraw::ClockDraw(ClockConfig* c, Rgb_buffer* b, Rasterizer* r) 
+ClockDraw::ClockDraw(ClockConfig* c, Rgb_buffer* b, Rasterizer* r)
 {
 	cfg = c;
 	buf = b;
@@ -157,7 +157,7 @@ void ClockDraw::draw_floating_tick(double angle)
 
 void ClockDraw::draw_simple_hand(double angle, double len)
 {
-	Vertex v[] = 
+	Vertex v[] =
 	{
 		Vertex(-2, 4),
 		Vertex(-2, -len - 1),
@@ -247,9 +247,9 @@ void ClockDraw::draw_hand(const TimeData& td, int which)
 
 //--------------------------------------------------------------------
 
-ClockApp::ClockApp(int argc, char** argv, ClockConfig* config, GdkPixbuf* pixbuf) : 
-	DockApp(argc, argv, "SpaceClock", pixbuf), 
-	rgb(new Rgb_buffer(64, 64)) 
+ClockApp::ClockApp(int argc, char** argv, ClockConfig* config, GdkPixbuf* pixbuf) :
+	DockApp(argc, argv, "SpaceClock", pixbuf),
+	rgb(new Rgb_buffer(64, 64))
 {
 	ras = make_bad_rasterizer(rgb);
 
@@ -285,7 +285,7 @@ void ClockApp::render(bool force)
 
 	TimeData td; // get current time
 
-	if (!force && 
+	if (!force &&
 		cfg->get_hand(ClockConfig::second_hand).exact &&
 		td.exact_second() == last_exact_second)
 	{

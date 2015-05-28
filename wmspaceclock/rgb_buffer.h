@@ -18,7 +18,7 @@ public:
 
 	Color(int rr, int gg, int bb) : r(rr), g(gg), b(bb) { }
 
-	Color(double rr, double gg, double bb) 
+	Color(double rr, double gg, double bb)
 	{
 		r = (unsigned char)(rr * 255);
 		g = (unsigned char)(gg * 255);
@@ -50,8 +50,8 @@ class Rgb_buffer
 public:
 	Rgb_buffer(int w0, int h0) : w(w0), h(h0), buf(new unsigned char[w0 * h0 * 3]) { }
 
-	Rgb_buffer(const Rgb_buffer& b) : w(b.w), h(b.h), buf(new unsigned char[b.w * b.h * 3]) 
-	{ 
+	Rgb_buffer(const Rgb_buffer& b) : w(b.w), h(b.h), buf(new unsigned char[b.w * b.h * 3])
+	{
 		std::copy(b.buf, b.buf + w * h * 3, buf);
 	}
 
@@ -77,7 +77,7 @@ public:
 		set_pixel(x, y, c.red(), c.green(), c.blue());
 	}
 
-	Color get_pixel(int x, int y) const 
+	Color get_pixel(int x, int y) const
 	{
 		assert(x >= 0 && y >= 0 && x < w && y < h);
 		unsigned char* c = buf + (x + y * w) * 3;
@@ -92,8 +92,8 @@ public:
 	void clear();
 	void clear(int r, int g, int b);
 	void clear(Color c) { clear(c.red(), c.green(), c.blue()); }
-	
-	Rgb_buffer& operator= (const Rgb_buffer& b) 
+
+	Rgb_buffer& operator= (const Rgb_buffer& b)
 	{
 		if (b.w != w || b.h != h)
 		{

@@ -47,7 +47,7 @@ void Scanline_generator::mark_pixel(int x, int y)
 void Scanline_generator::mark_line(const pos& a, const pos& b)
 {
 #ifdef DBG
-	cout << "  mark_line(" << a.x << ", " << a.y << "; " 
+	cout << "  mark_line(" << a.x << ", " << a.y << "; "
 		<< b.x << ", " << b.y << ")" << std::endl;
 #endif
 
@@ -74,7 +74,7 @@ void Scanline_generator::dump_scanlines()
 
 		cout << std::setw(2) << y << " (" << sl.size() << "): ";
 
-		std::copy(sl.begin() + bbox.xmin, sl.end() + bbox.xmax, 
+		std::copy(sl.begin() + bbox.xmin, sl.end() + bbox.xmax,
 				std::ostream_iterator<int>(cout, " "));
 
 		cout << std::endl;
@@ -128,7 +128,7 @@ void Scanline_generator::vertex(const Vertex& v)
 	{
 		first_pos = cur_pos;
 	}
-	else 
+	else
 	{
 		int cur_dy = cur_pos.y - prev_pos.y;
 

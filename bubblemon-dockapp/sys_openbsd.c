@@ -1,6 +1,6 @@
 /*  BubbleMon dockapp 1.2 - OpenBSD specific code
  *  Copyright (C) 2001, Peter Stromberg <wilfried@openbsd.org>
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -118,7 +118,7 @@ void system_loadavg(void)
 		if (sysctl(mib, 2, &loadinfo, &size, NULL, 0) >= 0)
 			for (i = 0; i < 3; i++) {
 				bm.loadavg[i].i = loadinfo.ldavg[i] / loadinfo.fscale;
-				bm.loadavg[i].f = ((loadinfo.ldavg[i] * 100 + 
+				bm.loadavg[i].f = ((loadinfo.ldavg[i] * 100 +
 				loadinfo.fscale / 2) / loadinfo.fscale) % 100;
 			}
 

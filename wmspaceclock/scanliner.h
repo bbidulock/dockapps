@@ -33,8 +33,8 @@ protected:
 		int xmax;
 		int ymax;
 
-		void clear(int w, int h) 
-		{ 
+		void clear(int w, int h)
+		{
 			xmin = w;
 			xmax = 0;
 			ymin = h;
@@ -52,7 +52,7 @@ protected:
 private:
 	int xdiv, ydiv;
 
-	int xsize, ysize; 
+	int xsize, ysize;
 
 	bounding_box bbox;
 

@@ -8,7 +8,7 @@ LFLAGS = `pkg-config --libs gtk+-2.0`
 X11BASE = /usr/X11R6
 CFLAGS =  $(INCLUDES) -DICON_TYPE=$(ICON_TYPE)
 INCDIR = -I$(X11BASE)/include/X11 -I$(X11BASE)/include -I$/usr/include -I$/usr/local/include
-DESTDIR= 
+DESTDIR=
 PREFIX= /usr/local
 LIBDIR = -L/usr/lib -L${X11BASE}/lib -L/usr/local/lib
 PACKAGE = wmCalendar

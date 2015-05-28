@@ -1,5 +1,5 @@
 bg_image pixmaps/wristwatch.xpm
-def_color hand_second 128 0 0 
+def_color hand_second 128 0 0
 def_color hand_outline 192 192 192
 def_color hand_fill 128 128 128
 import boring.hands

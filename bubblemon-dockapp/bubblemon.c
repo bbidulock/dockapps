@@ -17,7 +17,7 @@
  *  TODO: Anything else? Add fish?
  *
  *  *************************************************************************
- * 
+ *
  *  Bubbling Load Monitoring Applet
  *  - A GNOME panel applet that displays the CPU + memory load as a
  *    bubbling liquid.
@@ -347,7 +347,7 @@ int main(int argc, char **argv)
 	    {
 		/* no sense having -p if memscreen isn't compiled in, right?
 		 * what we are going to do is to change the colors as follows:
-		 * 
+		 *
 		 * (48,140,240) replaced with (158,196,237) - more pale blue
 		 * (237,23,23) replaced with (0,255,233) */
 		unsigned char *p = mem_screen;
@@ -810,10 +810,10 @@ static void bubblemon_update(int proximity)
 			bubbles[i].y > MAKEY(56)) {
 #ifdef DEBUG_DUCK
 		fprintf (stderr, "bubble out of bounds "
-				"bubbles[%i].x=%i, bubbles[%i].y=%i\n", 
+				"bubbles[%i].x=%i, bubbles[%i].y=%i\n",
 				i, bubbles[i].x, i, bubbles[i].y);
 #endif
-		
+
 	    /* Yes; nuke it */
 	    bubbles[i].x = bubbles[bm.n_bubbles - 1].x;
 	    bubbles[i].y = bubbles[bm.n_bubbles - 1].y;
@@ -827,7 +827,7 @@ static void bubblemon_update(int proximity)
 	    i--;
 	    continue;
 	}
-		
+
 	/* Did we lose it? */
 	if (bubbles[i].y < bm.waterlevels[bubbles[i].x]) {
 	    if (bm.ripples_int != 0) {
@@ -1259,7 +1259,7 @@ static void realtime_alpha_blend_of_cpu_usage(int cpu, int proximity)
 #ifdef ENABLE_CPU
     if (cpu_enabled) {
 	/* bit shifts result in smaller and faster code without an extra jns
-	 * which appears if we / 128 instead of >> 7. 
+	 * which appears if we / 128 instead of >> 7.
 	 */
 	kitptr = kit;
 	for (y = 0; y < 9; y++) {

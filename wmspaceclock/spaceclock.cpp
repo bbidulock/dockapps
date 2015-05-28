@@ -14,7 +14,7 @@
  * You did not receive a copy of the GNU General Public License along with
  * this program; chances are, you already have at least 10 copies of this
  * license somewhere on your system.  If you still want it, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, 
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
  * MA 02111-1307, USA.
  *
  * History :
@@ -129,7 +129,7 @@ static const char* default_config =
 
 int main(int argc, char* argv[])
 {
-	if (!gdk_init_check(&argc, &argv)) 
+	if (!gdk_init_check(&argc, &argv))
 	{
 		std::cerr << "GDK initialization failed, check $DISPLAY environment variable." << std::endl;
 		return 1;
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 			std::cout << "  spaceclock [theme]" << std::endl << std::endl;
 			std::cout << "Example:" << std::endl;
 			std::cout << "  spaceclock spacehawks_square.theme &" << std::endl << std::endl;
-			std::cout << "Have a look at the data directory (" << INSTALL_PREFIX << 
+			std::cout << "Have a look at the data directory (" << INSTALL_PREFIX <<
 			"/share/spaceclock)" << std::endl << "to find more theme files." << std::endl;
 
 			return 0;
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 	string bg_name = full_filename(cfg->bg_image_name());
 	GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(bg_name.c_str());
 
-	if (pixbuf == 0) 
+	if (pixbuf == 0)
 	{
 		pixbuf = gdk_pixbuf_new_from_xpm_data(const_cast<const char**>(master_xpm));
 		assert(pixbuf);

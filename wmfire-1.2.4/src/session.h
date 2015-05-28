@@ -26,5 +26,5 @@
 /******************************************/
 
 void smc_connect(gint, gchar **, gchar *);
-  
+
 #endif

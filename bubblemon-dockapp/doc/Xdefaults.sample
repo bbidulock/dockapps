@@ -1,4 +1,4 @@
-! BubbleMon settings 
+! BubbleMon settings
 ! vim: syntax=xdefaults
 bubblemon.maxbubbles: 100
 bubblemon.air_noswap: #2299FF

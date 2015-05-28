@@ -1,6 +1,6 @@
 /*  BubbleMon dockapp 1.2 - FreeBSD specific code
  *  Copyright (C) 2001, oleg dashevskii <od@iclub.nsu.ru>
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -132,7 +132,7 @@ int system_memory(void)
     static int swapavail = 0, swapused = 0;
     static time_t last_time_swap = 0;
     time_t curr_time;
-	
+
     if (kvm_read(kd, nlst[1].n_value, &sum, sizeof(sum)) != sizeof(sum))
 	return 0;		/* _cnt */
 
@@ -147,11 +147,11 @@ int system_memory(void)
     /* do not call it more than 1 time per 2 seconds */
     /* otherwise it can eat up to 50% of CPU time on heavy swap activity */
     curr_time = time(NULL);
-    
+
     if (swap_firsttime ||
 	(((sum.v_swappgsin > swappgsin) || (sum.v_swappgsout > swappgsout)) &&
 	curr_time > last_time_swap + 1)) {
-	
+
 	struct kvm_swap swap;
 	int n;
 
@@ -194,11 +194,11 @@ void system_loadavg(void)
 	mib[0] = CTL_VM;
 	mib[1] = VM_LOADAVG;
 	size = sizeof (loadinfo);
-	
+
 	if (sysctl(mib, 2, &loadinfo, &size, NULL, 0) >= 0)
 	    for (i = 0; i < 3; i++) {
 	    	bm.loadavg[i].i = loadinfo.ldavg[i] / loadinfo.fscale;
-	    	bm.loadavg[i].f = ((loadinfo.ldavg[i] * 100 + 
+	    	bm.loadavg[i].f = ((loadinfo.ldavg[i] * 100 +
 			loadinfo.fscale / 2) / loadinfo.fscale) % 100;
 	    }
 

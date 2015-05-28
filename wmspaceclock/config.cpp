@@ -49,7 +49,7 @@ const ClockConfig::Hand& MyClockConfig::get_hand(hand_idx i) const
 	return hands[i];
 }
 
-string MyClockConfig::bg_image_name() const 
+string MyClockConfig::bg_image_name() const
 {
 	return back_image_name;
 }
@@ -89,7 +89,7 @@ void MyClockConfig::read_vertices(istringstream& is, Polygon& pgon)
 		{
 			double x, y;
 			is >> x >> y;
-			
+
 			pgon.v.push_back(Vertex(x, y));
 		}
 		else if (token == "end")
@@ -236,7 +236,7 @@ void MyClockConfig::parse(const char* cfg)
 			}
 			catch (error& e)
 			{
-				std::cerr << "error reading file " << filename 
+				std::cerr << "error reading file " << filename
 					<< " at token: " << e.token << std::endl;
 			}
 		}

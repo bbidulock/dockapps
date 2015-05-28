@@ -6,7 +6,7 @@ OBJS =	wmtime.o \
 		wmgeneral/list.o
 XPMS = wmtime-master.xpm wmtime-mask.xbm
 PREFIX = /usr
-DESTDIR = 
+DESTDIR =
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man/man1
 INSTALL = install

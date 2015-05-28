@@ -89,7 +89,7 @@ layers to hide some of Xlib ugliness (libdockapp, wmgeneral, etc). Xlib is
 fine if all you do is change a couple pixels every other second, like most
 dockapps do. But if you deal with 3D, or any kind of large amount of pixel
 shuffling, Xlib really starts to suck. Common mistake when doing lots of
-pixel shuffling in Xlib is using XPutPixel or XCopyArea. Say, you got a 
+pixel shuffling in Xlib is using XPutPixel or XCopyArea. Say, you got a
 56x56 dockapp, and 80% of it is changed every 10ms. That's almost 2.5
 thousand pixel ops. And a 1x1 XCopyArea takes as much server overhead as a
 64x64 XCopyArea. Since X11 sucks, each one of these puts a request in the

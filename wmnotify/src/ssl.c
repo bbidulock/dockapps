@@ -50,7 +50,7 @@ InitCTX( void )
 {
   SSL_METHOD *method;
   SSL_CTX *ctx;
-  
+
   SSL_library_init();             /* Load cryptos, et.al. */
   SSL_load_error_strings();       /* Bring in and register error messages */
   method = SSLv23_client_method(); /* Indicate we support SSLv2, SSLv3 and TLSv1 methods. */
@@ -69,7 +69,7 @@ ShowCerts( SSL *ssl )
 {
   X509 *cert;
   char *line;
-  
+
   cert = SSL_get_peer_certificate(ssl); /* get the server's certificate */
   if ( cert != NULL ) {
     printf("Server certificates:\n");
@@ -90,7 +90,7 @@ ShowCerts( SSL *ssl )
 int
 InitSSL( int sock_fd )
 {
-  ssl_infos.ctx = InitCTX();  
+  ssl_infos.ctx = InitCTX();
   ssl_infos.ssl = SSL_new( ssl_infos.ctx ); /* create new SSL connection state */
   if( ssl_infos.ssl == NULL ) {
     printf( "%s: Error in SSL_new()\n", PACKAGE );

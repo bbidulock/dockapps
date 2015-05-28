@@ -35,7 +35,7 @@ public:
 
 	int alpha_at(int, int) const;
 	void clear_alpha(int, int);
-	
+
 	void toggle_pixel(int, int);
 	void set_pixel(int, int);
 	void set_pixel(int, int, bool);
@@ -46,7 +46,7 @@ public:
 	pos vertex_pos(const Vertex& v) const;
 };
 
-Subpixel_mask::Subpixel_mask(int w0, int h0, int xd0, int yd0) 
+Subpixel_mask::Subpixel_mask(int w0, int h0, int xd0, int yd0)
 	: w(w0), h(h0), xd(xd0), yd(yd0), buf(new unsigned[w0*h0])
 {
 }
@@ -56,7 +56,7 @@ Subpixel_mask::~Subpixel_mask()
 	delete [] buf;
 }
 
-void Subpixel_mask::clear_alpha(int x, int y) 
+void Subpixel_mask::clear_alpha(int x, int y)
 {
 	buf[x + y * w] = 0;
 }
@@ -154,8 +154,8 @@ public:
 };
 
 Simple_aa_rasterizer::Simple_aa_rasterizer(Rgb_buffer* b) :
-	Scanline_generator(b->width(), b->height(), 8, 4), 
-	rgb(b), 
+	Scanline_generator(b->width(), b->height(), 8, 4),
+	rgb(b),
 	m(b->width(), b->height(), 8, 4)
 {
 }
@@ -170,7 +170,7 @@ Simple_aa_rasterizer::Simple_aa_rasterizer(Rgb_buffer* b) :
 //                                3
 //
 
-void Simple_aa_rasterizer::rasterize_scanline(int y, 
+void Simple_aa_rasterizer::rasterize_scanline(int y,
 		Scanline_generator::xit begin, Scanline_generator::xit end)
 {
 	xit i = begin;

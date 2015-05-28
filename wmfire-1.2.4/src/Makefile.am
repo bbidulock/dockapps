@@ -7,7 +7,7 @@ wmfire_SOURCES = wmfire.c \
 else
 wmfire_SOURCES = wmfire.c \
 	flamedefault.h flamecorona.h flameblue.h flamegreen.h
-endif	 
+endif
 
 wmfire_LDADD = @LDFLAGS@
 
